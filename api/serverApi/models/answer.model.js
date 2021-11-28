@@ -1,12 +1,10 @@
+import Question from "question.model.js";
+
 const Answer = sequelize.define("answer", {
     id: {
       type: Sequelize.INTEGER,
       autoIncrement: true,
       primaryKey: true,
-      allowNull: false
-    },
-    questionId: {
-      type: Sequelize.INTEGER,
       allowNull: false
     },
     text: {
@@ -20,3 +18,5 @@ const Answer = sequelize.define("answer", {
         default: 0
     }
 });
+
+Answer.belongsTo(Question);

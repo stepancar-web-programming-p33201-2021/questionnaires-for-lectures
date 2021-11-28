@@ -1,3 +1,5 @@
+import Quiz from "quiz.model.js";
+
 const Image = sequelize.define("image", {
     id: {
       type: Sequelize.INTEGER,
@@ -14,4 +16,6 @@ const Image = sequelize.define("image", {
     indexInsideTheQuiz: {
        type: Sequelize.INTEGER
     }
-  });
+});
+
+Image.belongsTo(Quiz);
