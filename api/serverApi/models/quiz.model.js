@@ -57,10 +57,6 @@ export default class Quiz {
 }
 */
 
-import User from "user.model.js";
-import Question from "question.model.js";
-import Image from "image.model.js";
-
 const Quiz = sequelize.define("quiz", {
     id: {
       type: Sequelize.INTEGER,
@@ -79,18 +75,3 @@ const Quiz = sequelize.define("quiz", {
     }
 });
 
-Quiz.belongsTo(User);
-
-Quiz.hasMany(Question, 
-    {
-      foreignKey: 'quizId',
-      onDelete: 'CASCADE'
-    }
-);
-
-Quiz.hasMany(Image, 
-    {
-      foreignKey: 'quizId',
-      onDelete: 'CASCADE'
-    }
-);

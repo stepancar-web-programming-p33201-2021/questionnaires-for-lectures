@@ -1,5 +1,3 @@
-import Question from "question.model.js";
-
 const TextAnswer = sequelize.define("textAnswer", {
     id: {
       type: Sequelize.INTEGER,
@@ -18,5 +16,3 @@ const TextAnswer = sequelize.define("textAnswer", {
         default: 0
     }
 });
-
-TextAnswer.belongsTo(Question);

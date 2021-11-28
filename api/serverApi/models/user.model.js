@@ -20,9 +20,6 @@ export default class User {
     }
 }
 */
-
-import Quiz from "quiz.model.js";
-
 const User = sequelize.define("user", {
     login: {
       type: Sequelize.STRING,
@@ -40,9 +37,3 @@ const User = sequelize.define("user", {
     }
 });
 
-User.hasMany(Quiz, 
-  {
-    foreignKey: 'userId',
-    onDelete: 'CASCADE'
-  }
-);

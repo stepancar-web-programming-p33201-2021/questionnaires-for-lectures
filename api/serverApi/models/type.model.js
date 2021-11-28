@@ -1,5 +1,3 @@
-import Question from "question.model.js";
-
 const Type = sequelize.define("type", {
     id: {
       type: Sequelize.INTEGER,
@@ -13,9 +11,3 @@ const Type = sequelize.define("type", {
     }
 });
 
-Type.hasMany(Question, 
-  {
-    foreignKey: 'typeId',
-    onDelete: 'RESTRICT'
-  }
-);
