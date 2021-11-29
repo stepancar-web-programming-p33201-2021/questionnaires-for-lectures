@@ -1,36 +1,39 @@
 const express = require("express");
-const bodyParser = require("body-parser");
-
-const { Sequelize } = require('sequelize');
-
-const sequelize = new Sequelize('quizzes', 'root', 'root', {
-  host: 'localhost',
-  dialect: 'mysql'
-});
-
-/*
-try {
-  await sequelize.authenticate();
-  console.log('Connection has been established successfully.');
-} catch (error) {
-  console.error('Unable to connect to the database:', error);
-}
-*/
+// const bodyParser = require("body-parser"); /* deprecated */
+const cors = require("cors");
 
 const app = express();
 
-//делаем наш парсинг в формате json
-app.use(bodyParser.json());
+var corsOptions = {
+  origin: "http://localhost:8081"
+};
 
-// парсит запросы по типу: application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cors(corsOptions));
 
-//  простой response - request
+// parse requests of content-type - application/json
+app.use(express.json());  /* bodyParser.json() is deprecated */
+
+// parse requests of content-type - application/x-www-form-urlencoded
+app.use(express.urlencoded({ extended: true }));   /* bodyParser.urlencoded() is deprecated */
+
+const db = require("./serverApi/models");
+
+db.sequelize.sync();
+// // drop the table if it already exists
+// db.sequelize.sync({ force: true }).then(() => {
+//   console.log("Drop and re-sync db.");
+// });
+
+// simple route
 app.get("/", (req, res) => {
-  res.json({ message: "Это стартовая страница нашего приложения" });
+  res.json({ message: "Welcome to bezkoder application." });
 });
 
-// установить порт, и слушать запросы
-app.listen(3001, () => {
-  console.log("Сервер запущен на 3001 порту");
+require("./serverApi/routes/quiz.router")(app);
+require("./serverApi/routes/user.router")(app);
+
+// set port, listen for requests
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}.`);
 });

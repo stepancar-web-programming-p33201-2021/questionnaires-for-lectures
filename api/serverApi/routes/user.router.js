@@ -1,7 +1,11 @@
-export default app => {
+module.exports = app => {
   const users = require("../controllers/user.controller.js");
 
-  app.post("/users", users.create);
+  var router = require("express").Router();
 
-  app.get("/users/quizzes", users.findAllQuizzesByUserId);
+  router.post("/users", users.create);
+
+  router.get("/users/:id", users.findById);
+
+  app.use('/api/tutorials', router);
 };

@@ -1,4 +1,6 @@
-export default (sequelize, Sequelize) => {
+Question = require("./question.model");
+
+module.exports = (sequelize, Sequelize) => {
   const Type = sequelize.define("type", {
       id: {
         type: Sequelize.INTEGER,
@@ -11,6 +13,13 @@ export default (sequelize, Sequelize) => {
         allowNull: false
       }
   });
+
+  Type.hasMany(Question, 
+    {
+      foreignKey: 'typeId',
+      onDelete: 'RESTRICT'
+    }
+  );
   
   return Type;
 }

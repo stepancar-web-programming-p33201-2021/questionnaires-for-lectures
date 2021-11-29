@@ -1,4 +1,6 @@
-export default (sequelize, Sequelize) => {
+Quiz = require("./quiz.model");
+
+module.exports = (sequelize, Sequelize) => {
   const Image = sequelize.define("image", {
       id: {
         type: Sequelize.INTEGER,
@@ -17,5 +19,7 @@ export default (sequelize, Sequelize) => {
       }
   });
   
+  Image.belongsTo(Quiz);   
+
   return Image;
 };

@@ -1,4 +1,6 @@
-export default (sequelize, Sequelize) => {
+Quiz = require("./quiz.model");
+
+module.exports = (sequelize, Sequelize) => {
   const User = sequelize.define("user", {
       login: {
         type: Sequelize.STRING,
@@ -15,6 +17,13 @@ export default (sequelize, Sequelize) => {
         allowNull: false
       }
   });
+
+  User.hasMany(Quiz, 
+    {
+      foreignKey: 'userId',
+      onDelete: 'CASCADE'
+    }
+  );
   
   return User;
 }

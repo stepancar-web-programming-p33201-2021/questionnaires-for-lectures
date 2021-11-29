@@ -1,4 +1,6 @@
-export default (sequelize, Sequelize) => {
+Question = require("./question.model");
+
+module.exports = (sequelize, Sequelize) => {
   const TextAnswer = sequelize.define("textAnswer", {
       id: {
         type: Sequelize.INTEGER,
@@ -18,5 +20,7 @@ export default (sequelize, Sequelize) => {
       }
   });
   
+  TextAnswer.belongsTo(Question);
+
   return TextAnswer;
 }
