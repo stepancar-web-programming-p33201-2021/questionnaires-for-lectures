@@ -26,25 +26,6 @@ module.exports = (sequelize, Sequelize) => {
         defaultValue: 0
       }
   });
-
-  /*
-  Question.belongsTo(Quiz);
-  Question.belongsTo(Type);
-
-  Question.hasMany(Answer, 
-    {
-        foreignKey: 'questionId',
-        onDelete: 'CASCADE'
-    }
-  );
-
-  Question.hasMany(TextAnswer, 
-    {
-        foreignKey: 'questionId',
-        onDelete: 'CASCADE'
-    }
-  );
-  */
   
   return Question;
 }

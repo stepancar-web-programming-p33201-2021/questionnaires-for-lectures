@@ -10,7 +10,7 @@ module.exports = (db) => {
 
     User.hasMany(Quiz, 
         {
-          foreignKey: 'userId',
+          foreignKey: 'userEmail',
           onDelete: 'CASCADE'
         }
     );
