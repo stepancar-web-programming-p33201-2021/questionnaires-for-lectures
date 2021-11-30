@@ -1,4 +1,4 @@
-Quiz = require("./quiz.model");
+//Quiz = require("./quiz.model");
 
 module.exports = (sequelize, Sequelize) => {
   const User = sequelize.define("user", {
@@ -18,12 +18,14 @@ module.exports = (sequelize, Sequelize) => {
       }
   });
 
+  /*
   User.hasMany(Quiz, 
     {
       foreignKey: 'userId',
       onDelete: 'CASCADE'
     }
   );
-  
+  */
+ 
   return User;
 }

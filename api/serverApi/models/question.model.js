@@ -1,7 +1,9 @@
+/*
 Question = require("./question.model");
 Type = require("./type.model");
 Answer = require("./answer.model");
 TextAnswer = require("./textAnswer.model");
+*/
 
 module.exports = (sequelize, Sequelize) => {
   const Question = sequelize.define("question", {
@@ -16,14 +18,16 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false
       },
       indexInsideTheQuiz: {
-          type: Sequelize.INTEGER,
+        type: Sequelize.INTEGER,
       },
       totalVoters: {
-          type: Sequelize.INTEGER,
-          default: 0
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 0
       }
   });
 
+  /*
   Question.belongsTo(Quiz);
   Question.belongsTo(Type);
 
@@ -40,6 +44,7 @@ module.exports = (sequelize, Sequelize) => {
         onDelete: 'CASCADE'
     }
   );
+  */
   
   return Question;
 }

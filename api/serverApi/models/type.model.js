@@ -1,4 +1,4 @@
-Question = require("./question.model");
+//Question = require("./question.model");
 
 module.exports = (sequelize, Sequelize) => {
   const Type = sequelize.define("type", {
@@ -14,12 +14,14 @@ module.exports = (sequelize, Sequelize) => {
       }
   });
 
+  /*
   Type.hasMany(Question, 
     {
       foreignKey: 'typeId',
       onDelete: 'RESTRICT'
     }
   );
+  */
   
   return Type;
 }

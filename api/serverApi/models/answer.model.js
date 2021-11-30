@@ -1,4 +1,4 @@
-Question = require("./question.model");
+//Question = require("./question.model");
 
 module.exports = (sequelize, Sequelize) => {
   const Answer = sequelize.define("answer", {
@@ -12,15 +12,15 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
       },
       indexInsideTheQuestion: {
-          type: Sequelize.INTEGER
+        type: Sequelize.INTEGER
       },
       numberOfVoters: {
-          type: Sequelize.INTEGER,
-          default: 0
+        type: Sequelize.INTEGER,
+        defaultValue: 0
       }
   });
 
-  Answer.belongsTo(Question);
+  //Answer.belongsTo(Question);
 
   return Answer;
 };

@@ -1,10 +1,8 @@
-import Question from "./question.model"
-import User from "./user.model"
-import Image from "./image.model"
-
+/*
 Question = require("./question.model");
 User = require("./user.model");
 Image = require("./image.model");
+*/
 
 module.exports = (sequelize, Sequelize) => {
     const Quiz = sequelize.define("quiz", {
@@ -21,10 +19,11 @@ module.exports = (sequelize, Sequelize) => {
         isActive: {
            type: Sequelize.BOOLEAN,
            allowNull: false,
-           default: false
+           defaultValue: false
         }
     });
 
+    /*
     Quiz.belongsTo(User);
 
     Quiz.hasMany(Image, 
@@ -40,5 +39,6 @@ module.exports = (sequelize, Sequelize) => {
           onDelete: 'CASCADE'
       }
     );
+    */
     return Quiz;
 }

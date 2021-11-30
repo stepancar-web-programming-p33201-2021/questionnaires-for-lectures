@@ -1,4 +1,4 @@
-Quiz = require("./quiz.model");
+//Quiz = require("./quiz.model");
 
 module.exports = (sequelize, Sequelize) => {
   const Image = sequelize.define("image", {
@@ -15,11 +15,11 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING
       },
       indexInsideTheQuiz: {
-         type: Sequelize.INTEGER
+        type: Sequelize.INTEGER
       }
   });
   
-  Image.belongsTo(Quiz);   
+//  Image.belongsTo(Quiz);   
 
   return Image;
 };

@@ -3,18 +3,24 @@ const Quiz = db.quizzes;
 const Op = db.Sequelize.Op;
 
 exports.create = (req, res) => {
+  console.log("Posting quiz");
   if (!req.body) {
     res.status(400).send({
       message: "Content can not be empty!"
     });
   }
 
-  const quiz = {
-    id: req.body.id,
-    userId: req.body.userId,
+  let quiz = {
     name: req.body.name,
-    isActive: req.body.isActive,
   };
+
+  if (req.body.userId) {
+    quiz.userId = req.body.userId;
+  }
+
+  if (req.body.isActive) {
+    quiz.isActive = req.body.isActive;
+  }
 
   Quiz.create(quiz)
     .then(data => {

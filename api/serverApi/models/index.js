@@ -48,7 +48,7 @@ const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
   }
 });
 
-const db = {};
+let db = {};
 
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
@@ -61,5 +61,7 @@ db.quizzes = require("./quiz.model.js")(sequelize, Sequelize);
 db.textAnswers = require("./textAnswer.model.js")(sequelize, Sequelize);
 db.types = require("./type.model.js")(sequelize, Sequelize);
 db.users = require("./user.model.js")(sequelize, Sequelize);
+
+db = require("./extra-setup")(db);
 
 module.exports = db;
