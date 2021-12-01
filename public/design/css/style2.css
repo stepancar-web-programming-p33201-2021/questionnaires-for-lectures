@@ -1,0 +1,389 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #C4C4C4;
+    color: #333333;
+    font-size: 20px;
+}
+
+.wrapper {
+    padding-top: 5px;
+    max-width: 1400px;
+    padding-left: 15px;
+    padding-right: 15px;
+    margin: 0 auto;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.auth {
+    display: flex;
+    list-style-type: none;
+    justify-content: right;
+    padding-left: 0;
+}
+
+.auth > a {
+    margin-left: 10px;
+    margin-right:10px;
+    padding-right: 10px;
+    padding-left: 10px;
+    border: 2px solid #000000;
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+}
+
+.auth > a {
+    text-decoration: none;
+    color: #333333;
+    font-size: 24px;
+}
+
+.auth > li {
+    margin-left: 10px;
+    margin-right:10px;
+    padding-right: 10px;
+    padding-left: 10px;
+    border: 2px solid #000000;
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+}
+
+.auth > li > a {
+    text-decoration: none;
+    color: #333333;
+    font-size: 24px;
+}
+
+#white_center {
+    display: flex;
+    align-items: center;
+    min-height: 500px;
+    background-color: white;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#white_new {
+    min-height: 500px;
+    background-color: white;
+    padding-top: 5px;
+}
+
+.heading {
+    display: flex;
+    flex-direction: column;
+}
+
+.answer_option {
+    display: flex;
+    flex-direction: row;
+}
+
+.question {
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+.option {
+    padding-bottom: 10px;
+    padding-right: 5px;
+}
+
+.question > input {
+    width: 500px;
+}
+
+.check > img{
+    height: 30px;
+}
+
+.option > input {
+    width: 440px;
+}
+.body_quest {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: #C4C4C4;
+    padding-right: 20px;
+    padding-left: 20px;
+    padding-bottom: 10px;
+    border-radius: 11px;
+}
+
+.questions {
+    display: flex;
+    flex-direction: row;
+    padding-top: 20px;
+}
+
+.num_quest {
+    display: flex;
+    justify-content: right;
+}
+
+.count_opt {
+    display: flex;
+    flex-direction: column;
+}
+
+.avail_opt {
+    display: flex;
+    flex-direction: column;
+}
+
+.btns2 > a > img {
+    height: 50px;
+    padding-right: 20px;
+}
+
+.upload_pic > a > img {
+    height: 40px;
+}
+
+.upload_pic {
+    display: flex;
+    align-items: flex-end;
+    align-content: flex-end;
+}
+
+.upload_pic > span {
+    padding-right: 12px;
+}
+
+.btns2 {
+    display: flex;
+    align-self: center;
+    justify-content: right;
+}
+
+.questions {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+#photo {
+    border: none;
+}
+
+.btns > button {
+    width: 190px;
+    height: 40px;
+}
+
+.btns {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.constructor > div {
+
+    padding-bottom: 20px;
+}
+
+.count_opt > input {
+    border: none;
+    width: 50px;
+    align-self: center;
+
+}
+
+.avail_opt > input {
+    border: none;
+    width: 50px;
+    align-self: center;
+}
+
+.constructor > div > span {
+    padding-bottom: 10px;
+}
+
+.creates {
+    font-size: 30px;
+}
+
+.naming {
+    font-size: 24px;
+    font-style: italic;
+}
+
+.my_quizes {
+    font-size: 30px;
+}
+
+.my_quiz {
+    padding-top: 20px;
+    display: flex;
+    flex-flow: row;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+}
+
+.quiz_name {
+    padding-right: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.quiz_name > span {
+    padding-bottom: 10px;
+}
+
+.plus {
+    display: flex;
+    align-self: center;
+    padding-left: 20px;
+}
+
+.plus > a > img {
+    height: 55px;
+}
+
+.gaps {
+    display: flex;
+    justify-content: space-between;
+    padding-right: 15px;
+    padding-left: 15px;
+    align-items: center;
+    width: 482px;
+    height: 113px;
+    background-color: #C4C4C4;
+    border-radius: 11px;
+}
+
+.gaps > input {
+    height: 75px;
+    width: 51px;
+    border-radius: 11px;
+    border: none;
+    font-size: 40px;
+    text-align: center;
+}
+
+#start {
+    width: 200px;
+}
+
+.title > span {
+    font-size: 40px;
+    font-weight: bold;
+
+}
+
+.title {
+    padding-bottom: 20px;
+}
+
+.code {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 20px;
+}
+
+.start {
+    padding-top: 20px;
+}
+
+.names-top{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.names-top > span {
+    text-align: center;
+    font-family: 'Oleo Script Swash Caps', cursive;
+    font-size: 120px;
+}
+
+.buttons {
+    display: flex;
+    justify-content: space-between;
+}
+
+.buttons > a {
+    padding-right: 40px;
+    padding-left:  40px;
+    padding-bottom: 40px;
+}
+
+.invite {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.invite > span {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.qr {
+    display: flex;
+    justify-content: center;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+#phone {
+    height: 78px;
+}
+
+.registration {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.registration_form{
+    display: flex;
+    flex-direction: column;
+    list-style-type: none;
+}
+
+.registration > span {
+    text-align: center;
+    font-size: 60px;
+}
+
+.registration_form > li {
+    font-size: 24px;
+    padding-bottom: 24px;
+}
+
+.registration_form > li > div.text{
+    padding-bottom: 8px;
+}
+
+.registration_form > li > div > input {
+    width: 400px;
+}
+
+.sign {
+    background-color: #C3C3C3;
+    font-size: 24px;
+    border-radius: 11px;
+    width: 280px;
+    height: 50px;
+}
+
+.google {
+    padding-top: 12px;
+}
+
+#google_logo {
+    width: 50px;
+    height: 50px;
+}
+
+button {
+    cursor: pointer;
+}
