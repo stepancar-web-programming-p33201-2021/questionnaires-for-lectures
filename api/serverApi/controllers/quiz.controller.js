@@ -1,4 +1,6 @@
-const db = require("../models");
+const db = require("../models");  
+const questionController = require("../controllers/question.controller.js");
+const imageController = require("../controllers/image.controller.js");
 const Quiz = db.quizzes;
 const Op = db.Sequelize.Op;
 
@@ -32,6 +34,18 @@ exports.create = (req, res) => {
           err.message || "Some error occurred while creating the Quiz."
       });
     });
+    
+  if (req.body.questions) {
+    req.body.questions.forEach(element => {
+      questionController.create(element);
+    });  
+  }
+
+  if (req.body.images) {
+    req.body.images.forEach(element => {
+      imageController.create(element);
+    });  
+  }
 }
 
 exports.findById = (req, res) => {

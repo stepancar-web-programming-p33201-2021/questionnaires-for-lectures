@@ -1,5 +1,7 @@
 const db = require("../models");
 const Question = db.questions;
+const answerController = require("../controllers/answer.controller.js");
+const textAnswerController = require("../controllers/textAnswer.controller.js");
 const Op = db.Sequelize.Op;
 
 exports.create = (req, res) => {
@@ -26,6 +28,29 @@ exports.create = (req, res) => {
           err.message || "Some error occurred while creating the Question."
       });
     });
+
+  if (req.body.type.toLowerCase().equals("answer")) {
+    if (req.body.textAnswers) {
+      res.status(400).send({
+        message: "type is answer, why are there textAnswers?"
+      });
+    } else if (req.body.answers)
+      req.body.questions.forEach(element => {
+        answerController.create(element);
+    });  
+  } 
+
+  if (req.body.type.toLowerCase().equals("textanswer")) {
+    if (req.body.answers) {
+      res.status(400).send({
+        message: "type is textAnswer, why are there answers?"
+      });
+    } else if (req.body.textAnswers)
+      req.body.questions.forEach(element => {
+        textAnswerController.create(element);
+    });  
+  } 
+  
 }
 
 exports.findById = (req, res) => {

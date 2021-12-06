@@ -1,12 +1,12 @@
-//todo
 const db = require("../models");
+const quizController = require("../controllers/quiz.controller.js");
 const User = db.users;
 const Op = db.Sequelize.Op;
 
 exports.create = (req, res) => {
   if (!req.body) {
     res.status(400).send({
-      message: "Тело запроса должно присутствовать"
+      message: "Content can not be empty!"
     });
   }
 
@@ -26,6 +26,12 @@ exports.create = (req, res) => {
           err.message || "Some error occurred while creating the Tutorial."
       });
     });
+
+  if (req.body.quizzes) {
+    req.body.quizzes.forEach(element => {
+      quizController.create(element);
+    });  
+  }
 }
 
 
