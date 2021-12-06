@@ -7,5 +7,5 @@ module.exports = app => {
 
   router.get("/users/:id", users.findById);
 
-  app.use('/api', router);
+  app.use("/api", router);
 };

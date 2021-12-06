@@ -11,7 +11,7 @@ exports.create = (req, res) => {
   }
 
   let quiz = {
-    name: req.body.name,
+    name: req.body.name
   };
 
   if (req.body.userId) {

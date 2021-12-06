@@ -12,7 +12,8 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
       },
       indexInsideTheQuestion: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        allowNull: false
       },
       numberOfVoters: {
         type: Sequelize.INTEGER,

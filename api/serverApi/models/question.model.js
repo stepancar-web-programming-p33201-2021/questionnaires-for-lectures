@@ -19,10 +19,10 @@ module.exports = (sequelize, Sequelize) => {
       },
       indexInsideTheQuiz: {
         type: Sequelize.INTEGER,
+        allowNull: false
       },
       totalVoters: {
         type: Sequelize.INTEGER,
-        allowNull: false,
         defaultValue: 0
       }
   });
