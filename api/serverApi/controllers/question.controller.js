@@ -1,7 +1,9 @@
 const db = require("../models");
 const Question = db.questions;
+/*
 const answerController = require("../controllers/answer.controller.js");
 const textAnswerController = require("../controllers/textAnswer.controller.js");
+*/
 const Op = db.Sequelize.Op;
 
 exports.create = (req, res) => {
@@ -15,12 +17,17 @@ exports.create = (req, res) => {
   let question = {
     text: req.body.text,
     indexInsideTheQuiz: req.body.indexInsideTheQuiz,
-    totalVoters: req.body.totalVoters
+    type: req.body.type,
+    totalVoters: req.body.totalVoters,
+    quizId: req.body.quizId
   };
+
+  //let questionId;
 
   Question.create(question)
     .then(data => {
       res.send(data);
+      //questionId = data.id;
     })
     .catch(err => {
       res.status(500).send({
@@ -29,28 +36,34 @@ exports.create = (req, res) => {
       });
     });
 
-  if (req.body.type.toLowerCase().equals("answer")) {
+  /*
+  if (req.body.type.toLowerCase() == "answer") {
     if (req.body.textAnswers) {
       res.status(400).send({
         message: "type is answer, why are there textAnswers?"
       });
     } else if (req.body.answers)
       req.body.questions.forEach(element => {
-        answerController.create(element);
+        element["questionId"] = questionId;
+        const reqElement = {body : element};
+        answerController.create(reqElement, res);
     });  
   } 
 
-  if (req.body.type.toLowerCase().equals("textanswer")) {
+  if (req.body.type.toLowerCase() == "textanswer") {
     if (req.body.answers) {
       res.status(400).send({
         message: "type is textAnswer, why are there answers?"
       });
     } else if (req.body.textAnswers)
       req.body.questions.forEach(element => {
-        textAnswerController.create(element);
+        element["questionId"] = questionId;
+        const reqElement = {body : element};
+        textAnswerController.create(reqElement, res);
     });  
   } 
   
+  */
 }
 
 exports.findById = (req, res) => {

@@ -4,12 +4,12 @@ module.exports = (sequelize, Sequelize) => {
   const User = sequelize.define("user", {
       login: {
         type: Sequelize.STRING,
+        primaryKey: true,
         unique: true,
         allowNull: false
       },
       email: {
         type: Sequelize.STRING,
-        primaryKey: true,
         allowNull: false,
         unique: true
       },

@@ -11,7 +11,8 @@ module.exports = (db) => {
     User.hasMany(Quiz, 
         {
           foreignKey: 'userEmail',
-          onDelete: 'CASCADE'
+          onDelete: 'CASCADE',
+          onUpdate: 'CASCADE'
         }
     );
     Quiz.belongsTo(User);
@@ -20,7 +21,8 @@ module.exports = (db) => {
     Quiz.hasMany(Image, 
       {
           foreignKey: 'quizId',
-          onDelete: 'CASCADE'
+          onDelete: 'CASCADE',
+          onUpdate: 'CASCADE'
       }
     );
     Image.belongsTo(Quiz); 
@@ -28,7 +30,8 @@ module.exports = (db) => {
     Quiz.hasMany(Question, 
       {
           foreignKey: 'quizId',
-          onDelete: 'CASCADE'
+          onDelete: 'CASCADE',
+          onUpdate: 'CASCADE'
       }
     );
     Question.belongsTo(Quiz);
@@ -44,7 +47,8 @@ module.exports = (db) => {
     Question.hasMany(TextAnswer, 
         {
             foreignKey: 'questionId',
-            onDelete: 'CASCADE'
+            onDelete: 'CASCADE',
+            onUpdate: 'CASCADE'
         }
     );
     TextAnswer.belongsTo(Question);
@@ -52,7 +56,8 @@ module.exports = (db) => {
     Question.hasMany(Answer, 
         {
             foreignKey: 'questionId',
-            onDelete: 'CASCADE'
+            onDelete: 'CASCADE',
+            onUpdate: 'CASCADE'
         }
     );
     Answer.belongsTo(Question);

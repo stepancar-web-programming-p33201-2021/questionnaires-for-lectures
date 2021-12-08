@@ -4,6 +4,7 @@ const Op = db.Sequelize.Op;
 
 exports.create = (req, res) => {
   console.log("Posting Answer");
+  
   if (!req.body) {
     res.status(400).send({
       message: "Content can not be empty!"
@@ -13,7 +14,8 @@ exports.create = (req, res) => {
   let answer = {
     text: req.body.text,
     indexInsideTheQuestion: req.body.indexInsideTheQuestion,
-    numberOfVoters: req.body.numberOfVoters
+    numberOfVoters: req.body.numberOfVoters,
+    questionId: req.body.questionId
   };
 
   Answer.create(answer)

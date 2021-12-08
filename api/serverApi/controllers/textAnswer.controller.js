@@ -12,7 +12,8 @@ exports.create = (req, res) => {
 
   let textAnswer = {
     userText: req.body.quizId,
-    numberOfVoters: req.body.url
+    numberOfVoters: req.body.url,
+    questionId: req.body.questionId
   };
 
   TextAnswer.create(textAnswer)

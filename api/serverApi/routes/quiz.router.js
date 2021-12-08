@@ -9,13 +9,13 @@ module.exports = app => {
 
   router.put("/quizzes/:id", quizzes.updateById);
   
-  /*
   router.put("/quizzes/:id/activate", quizzes.activateById);
 
   router.put("/quizzes/:id/deactivate", quizzes.deactivateById);
-  */
 
   router.delete("/quizzes/:id", quizzes.deleteById);
+
+  router.get("/quizzes", quizzes.findAll);
 
   app.use("/api", router);
 }

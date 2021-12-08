@@ -1,6 +1,8 @@
 const db = require("../models");  
+/*
 const questionController = require("../controllers/question.controller.js");
 const imageController = require("../controllers/image.controller.js");
+*/
 const Quiz = db.quizzes;
 const Op = db.Sequelize.Op;
 
@@ -24,29 +26,43 @@ exports.create = (req, res) => {
     quiz.isActive = req.body.isActive;
   }
 
+  //let quizId = 0;
+
   Quiz.create(quiz)
     .then(data => {
       res.send(data);
+      console.log(data.id + " is a new id YASITIS");
+      //quizId = data.id;
     })
     .catch(err => {
+      console.log("ERRORRRORERROR");
       res.status(500).send({
         message:
           err.message || "Some error occurred while creating the Quiz."
       });
     });
-    
-  if (req.body.questions) {
-    req.body.questions.forEach(element => {
-      questionController.create(element);
+  
+  /*
+  if (req.body.images) {
+    req.body.images.forEach(element => {
+      element["quizId"] = quizId;
+      console.log(element);
+      const reqElement = {body : element};
+      imageController.create(reqElement, res);
     });  
   }
 
-  if (req.body.images) {
-    req.body.images.forEach(element => {
-      imageController.create(element);
+  if (req.body.questions) {
+    req.body.questions.forEach(element => {
+      element["quizId"] = quizId;
+      console.log(element);
+      const reqElement = {body : element};
+      questionController.create(reqElement, res);
     });  
   }
+  */
 }
+
 
 exports.findById = (req, res) => {
   const id = req.params.id;
@@ -66,6 +82,19 @@ exports.findById = (req, res) => {
         message: "Error retrieving Quiz with id=" + id
       });
     });  
+}
+
+exports.findAll = (req, res) => {
+  Tutorial.findAll()
+    .then(data => {
+      res.send(data);
+    })
+    .catch(err => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving quizzes."
+      });
+  });
 }
 
 exports.updateById = (req, res) => {
@@ -91,29 +120,59 @@ exports.updateById = (req, res) => {
       });
     });
 }
-/*
-export function activateById(req, res) {
-  Quiz.activateById(req.params.id, (err, data) => {
-    if (err)
+
+exports.activateById = (req, res) => {
+  const id = req.params.id;
+  let quiz = Quiz.findById(id);
+  quiz.isActive = true;
+
+  Quiz.update(req.body, {
+    where: { id: id }
+  })
+    .then(num => {
+      if (num == 1) {
+        res.send({
+          message: "Quiz was activated successfully."
+        });
+      } else {
+        res.send({
+          message: `Cannot activate Quiz with id=${id}. Maybe Quiz was not found`
+        });
+      }
+    })
+    .catch(err => {
       res.status(500).send({
-        message:
-          err.message || "Ошибка сервера"
+        message: "Error updating Quiz with id=" + id
       });
-    else res.send(data);
-  }); 
+    });
 }
 
-export function deactivateById(req, res) {
-  Quiz.deactivateById(req.params.id, (err, data) => {
-    if (err)
+exports.deactivateById = (req, res) => {
+  const id = req.params.id;
+  let quiz = Quiz.findById(id);
+  quiz.isActive = false;
+
+  Quiz.update(req.body, {
+    where: { id: id }
+  })
+    .then(num => {
+      if (num == 1) {
+        res.send({
+          message: "Quiz was activated successfully."
+        });
+      } else {
+        res.send({
+          message: `Cannot activate Quiz with id=${id}. Maybe Quiz was not found`
+        });
+      }
+    })
+    .catch(err => {
       res.status(500).send({
-        message:
-          err.message || "Ошибка сервера"
+        message: "Error updating Quiz with id=" + id
       });
-    else res.send(data);
-  });   
+    });
 }
-*/
+
 exports.deleteById = (req, res) => {
   const id = req.params.id;
 
