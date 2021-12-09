@@ -4,6 +4,11 @@ const questionController = require("../controllers/question.controller.js");
 const imageController = require("../controllers/image.controller.js");
 */
 const Quiz = db.quizzes;
+const Question = db.questions;
+const Image = db.images;
+const Type = db.types;
+const TextAnswer = db.textAnswers;
+const Answer = db.answers;
 const Op = db.Sequelize.Op;
 
 exports.create = (req, res) => {
@@ -18,8 +23,8 @@ exports.create = (req, res) => {
     name: req.body.name
   };
 
-  if (req.body.userId) {
-    quiz.userId = req.body.userId;
+  if (req.body.userLogin) {
+    quiz.userLogin = req.body.userLogin;
   }
 
   if (req.body.isActive) {
@@ -67,7 +72,33 @@ exports.create = (req, res) => {
 exports.findById = (req, res) => {
   const id = req.params.id;
 
-  Quiz.findByPk(id)
+  Quiz.findOne({
+    where: {id : id}, 
+    include: [
+      {
+        model: Question, 
+        required: false,
+        include: [
+          {
+            model: Type, 
+            required: false
+          },
+          {
+            model: Answer, 
+            required: false
+          },
+          {
+            model: TextAnswer, 
+            required: false
+          }
+        ]
+      }, 
+      {
+        model: Image, 
+        required: false
+      }
+    ]
+  })
     .then(data => {
       if (data) {
         res.send(data);
@@ -85,7 +116,7 @@ exports.findById = (req, res) => {
 }
 
 exports.findAll = (req, res) => {
-  Tutorial.findAll()
+  Tutorial.findAll({ include: Question })
     .then(data => {
       res.send(data);
     })

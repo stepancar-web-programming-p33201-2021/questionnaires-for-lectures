@@ -1,5 +1,9 @@
 const db = require("../models");
 const Question = db.questions;
+const Answer = db.answers;
+const TextAnswer = db.textAnswers;
+const Type = db.types;
+
 /*
 const answerController = require("../controllers/answer.controller.js");
 const textAnswerController = require("../controllers/textAnswer.controller.js");
@@ -17,7 +21,7 @@ exports.create = (req, res) => {
   let question = {
     text: req.body.text,
     indexInsideTheQuiz: req.body.indexInsideTheQuiz,
-    type: req.body.type,
+    type: req.body.type,//TODO
     totalVoters: req.body.totalVoters,
     quizId: req.body.quizId
   };
@@ -69,7 +73,23 @@ exports.create = (req, res) => {
 exports.findById = (req, res) => {
   const id = req.params.id;
 
-  Quiz.findByPk(id)
+  Question.findOne({
+    where: {id : id}, 
+    include: [
+      {
+        model: Type, 
+        required: false,
+      }, 
+      {
+        model: Answer, 
+        required: false,
+      }, 
+      {
+        model: TextAnswer, 
+        required: false
+      }
+    ]
+  })
     .then(data => {
       if (data) {
         res.send(data);

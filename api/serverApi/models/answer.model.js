@@ -10,10 +10,14 @@ module.exports = (sequelize, Sequelize) => {
       },
       text: {
         type: Sequelize.STRING,
+        allowNull: false
       },
       indexInsideTheQuestion: {
         type: Sequelize.INTEGER,
         allowNull: false
+      },
+      isRight: {
+        type: Sequelize.BOOLEAN
       },
       numberOfVoters: {
         type: Sequelize.INTEGER,

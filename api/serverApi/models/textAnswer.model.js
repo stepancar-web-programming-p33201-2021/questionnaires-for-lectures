@@ -10,6 +10,7 @@ module.exports = (sequelize, Sequelize) => {
       },
       userText: {
         type: Sequelize.STRING,
+        allowNull: false
       },
       numberOfVoters: {
         type: Sequelize.INTEGER,
