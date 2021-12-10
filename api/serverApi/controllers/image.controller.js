@@ -1,5 +1,7 @@
 const db = require("../models");
 const Image = db.images;
+const Quiz = db.quizzes;
+const User = db.users;
 const Op = db.Sequelize.Op;
 
 exports.create = (req, res) => {
@@ -31,7 +33,22 @@ exports.create = (req, res) => {
 exports.findById = (req, res) => {
   const id = req.params.id;
 
-  Image.findByPk(id)
+  
+  Image.findOne({
+    where: {id : id}, 
+    include: [
+      {
+        model: Quiz, 
+        required: false,
+        include: [
+          {
+            model: User,
+            required: false 
+          }
+        ]
+      }
+    ]
+  })
     .then(data => {
       if (data) {
         res.send(data);

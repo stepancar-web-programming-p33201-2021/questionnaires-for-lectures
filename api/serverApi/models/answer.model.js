@@ -17,7 +17,8 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false
       },
       isRight: {
-        type: Sequelize.BOOLEAN
+        type: Sequelize.BOOLEAN,
+        default: false
       },
       numberOfVoters: {
         type: Sequelize.INTEGER,

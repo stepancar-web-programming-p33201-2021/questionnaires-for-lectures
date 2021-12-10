@@ -1,5 +1,8 @@
 const db = require("../models");
 const TextAnswer = db.textAnswers;
+const Question = db.questions;
+const User = db.users;
+const Quiz = db.quizzes;
 const Op = db.Sequelize.Op;
 
 exports.create = (req, res) => {
@@ -31,7 +34,25 @@ exports.create = (req, res) => {
 exports.findById = (req, res) => {
   const id = req.params.id;
 
-  TextAnswer.findByPk(id)
+  TextAnswer.findOne({
+    where: {id : id}, 
+    include: [{
+      model: Question, 
+      required: false,
+      include: [
+        {
+          model: Quiz,
+          required: false,
+          include: [
+            {
+              model: User,
+              required: false 
+            }
+          ]
+        }
+      ]
+    }]
+  })
     .then(data => {
       if (data) {
         res.send(data);

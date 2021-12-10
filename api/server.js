@@ -35,6 +35,7 @@ require("./serverApi/routes/question.router")(app);
 require("./serverApi/routes/quiz.router")(app);
 require("./serverApi/routes/textAnswer.router")(app);
 require("./serverApi/routes/user.router")(app);
+require("./serverApi/routes/type.router")(app);
 
 
 // set port, listen for requests

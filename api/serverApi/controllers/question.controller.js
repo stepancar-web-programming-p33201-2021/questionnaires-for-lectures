@@ -1,8 +1,10 @@
 const db = require("../models");
+const User = db.users;
 const Question = db.questions;
 const Answer = db.answers;
 const TextAnswer = db.textAnswers;
 const Type = db.types;
+const Quiz = db.quizzes;
 
 /*
 const answerController = require("../controllers/answer.controller.js");
@@ -18,10 +20,28 @@ exports.create = (req, res) => {
     });
   }
 
+  let foundType = null;
+
+  Type.findOne({where: {name : req.body.type.toLowerCase()}})
+  .then(data => {
+    if (data) {
+      foundType = data.id;
+    } else {
+      res.status(404).send({
+        message: `Cannot find Type.`
+      });
+    }
+  })
+  .catch(err => {
+    res.status(500).send({
+      message: "Error retrieving Type"
+    });
+  }); 
+
   let question = {
     text: req.body.text,
     indexInsideTheQuiz: req.body.indexInsideTheQuiz,
-    type: req.body.type,//TODO
+    type: foundType,
     totalVoters: req.body.totalVoters,
     quizId: req.body.quizId
   };
@@ -87,6 +107,16 @@ exports.findById = (req, res) => {
       {
         model: TextAnswer, 
         required: false
+      },
+      {
+        model: Quiz, 
+        required: false,
+        include: [
+          {
+            model: User,
+            required: false 
+          }
+        ]
       }
     ]
   })

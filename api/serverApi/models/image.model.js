@@ -9,13 +9,16 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false
       },
       quizId: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        allowNull: false
       },
       url: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false
       },
       indexInsideTheQuiz: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        allowNull: false
       }
   });
   

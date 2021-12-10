@@ -9,6 +9,7 @@ const Image = db.images;
 const Type = db.types;
 const TextAnswer = db.textAnswers;
 const Answer = db.answers;
+const User = db.users;
 const Op = db.Sequelize.Op;
 
 exports.create = (req, res) => {
@@ -95,6 +96,10 @@ exports.findById = (req, res) => {
       }, 
       {
         model: Image, 
+        required: false
+      },
+      {
+        model: User, 
         required: false
       }
     ]

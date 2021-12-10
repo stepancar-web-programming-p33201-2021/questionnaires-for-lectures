@@ -1,5 +1,8 @@
 const db = require("../models");
 const Answer = db.answers;
+const Quiz = db.quizzes;
+const User = db.users;
+const Question = db.questions;
 const Op = db.Sequelize.Op;
 
 exports.create = (req, res) => {
@@ -15,6 +18,7 @@ exports.create = (req, res) => {
     text: req.body.text,
     indexInsideTheQuestion: req.body.indexInsideTheQuestion,
     numberOfVoters: req.body.numberOfVoters,
+    isRight: req.body.isRight,
     questionId: req.body.questionId
   };
 
@@ -33,7 +37,25 @@ exports.create = (req, res) => {
 exports.findById = (req, res) => {
   const id = req.params.id;
 
-  Quiz.findByPk(id)
+  Answer.findOne({
+    where: {id : id}, 
+    include: [{
+      model: Question, 
+      required: false,
+      include: [
+        {
+          model: Quiz,
+          required: false,
+          include: [
+            {
+              model: User,
+              required: false 
+            }
+          ]
+        }
+      ]
+    }]
+  })
     .then(data => {
       if (data) {
         res.send(data);
