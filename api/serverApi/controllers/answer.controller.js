@@ -17,8 +17,8 @@ exports.create = (req, res) => {
   let answer = {
     text: req.body.text,
     indexInsideTheQuestion: req.body.indexInsideTheQuestion,
-    numberOfVoters: req.body.numberOfVoters,
-    isRight: req.body.isRight,
+    numberOfVoters: req.body.numberOfVoters ? req.body.numberOfVoters : 0,
+    isRight: req.body.isRight ? req.body.isRight : false,
     questionId: req.body.questionId
   };
 

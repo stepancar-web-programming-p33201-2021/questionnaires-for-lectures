@@ -15,7 +15,7 @@ exports.create = (req, res) => {
 
   let textAnswer = {
     userText: req.body.quizId,
-    numberOfVoters: req.body.url,
+    numberOfVoters: req.body.numberOfVoters ? req.body.numberOfVoters : 0,
     questionId: req.body.questionId
   };
 

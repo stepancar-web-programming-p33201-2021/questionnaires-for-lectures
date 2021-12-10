@@ -12,7 +12,7 @@ const textAnswerController = require("../controllers/textAnswer.controller.js");
 */
 const Op = db.Sequelize.Op;
 
-exports.create = (req, res) => {
+exports.create = async (req, res) => {
   console.log("Posting question");
   if (!req.body) {
     res.status(400).send({
@@ -20,12 +20,10 @@ exports.create = (req, res) => {
     });
   }
 
-  let foundType = null;
-
-  Type.findOne({where: {name : req.body.type.toLowerCase()}})
-  .then(data => {
+  const result = await Type.findOne({where: {name : req.body.type.toLowerCase()}});
+  /*.then(data => {
     if (data) {
-      foundType = data.id;
+      //result = data;
     } else {
       res.status(404).send({
         message: `Cannot find Type.`
@@ -36,19 +34,38 @@ exports.create = (req, res) => {
     res.status(500).send({
       message: "Error retrieving Type"
     });
-  }); 
+  }); */
+
+  if (!result) {
+    res.status(404).send({
+      message: `Cannot find Type.`
+    });
+  }
 
   let question = {
     text: req.body.text,
     indexInsideTheQuiz: req.body.indexInsideTheQuiz,
-    type: foundType,
-    totalVoters: req.body.totalVoters,
-    quizId: req.body.quizId
+    typeId: result.id,
+    totalVoters: req.body.totalVoters ? req.body.totalVoters : 0,
+    quizId: req.body.quizId,
+    answers: req.body.answers
   };
 
+  /*var answers;
+
+  question.answers.forEach(e => answers.push({
+    text: e.text,
+    indexInsideTheQuestion: e.indexInsideTheQuestion,
+    numberOfVoters: e.numberOfVoters ? e.numberOfVoters : 0,
+    isRight: e.isRight ? e.isRight : false,
+    questionId: e.questionId
+  }));
+
+  question[answers] = answers;
+*/
   //let questionId;
 
-  Question.create(question)
+  Question.create(/*{*/question/*}, {include: [Answer]}*/)
     .then(data => {
       res.send(data);
       //questionId = data.id;

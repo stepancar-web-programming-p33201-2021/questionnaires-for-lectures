@@ -21,27 +21,19 @@ exports.create = (req, res) => {
   }
 
   let quiz = {
-    name: req.body.name
+    name: req.body.name,
+    userLogin: req.body.userLogin ? req.body.userLogin : null,
+    isActive: req.body.isActive ? req.body.isActive : false
   };
-
-  if (req.body.userLogin) {
-    quiz.userLogin = req.body.userLogin;
-  }
-
-  if (req.body.isActive) {
-    quiz.isActive = req.body.isActive;
-  }
 
   //let quizId = 0;
 
   Quiz.create(quiz)
     .then(data => {
       res.send(data);
-      console.log(data.id + " is a new id YASITIS");
       //quizId = data.id;
     })
     .catch(err => {
-      console.log("ERRORRRORERROR");
       res.status(500).send({
         message:
           err.message || "Some error occurred while creating the Quiz."
