@@ -5,11 +5,6 @@ const Answer = db.answers;
 const TextAnswer = db.textAnswers;
 const Type = db.types;
 const Quiz = db.quizzes;
-
-/*
-const answerController = require("../controllers/answer.controller.js");
-const textAnswerController = require("../controllers/textAnswer.controller.js");
-*/
 const Op = db.Sequelize.Op;
 
 exports.create = async (req, res) => {
@@ -20,23 +15,9 @@ exports.create = async (req, res) => {
     });
   }
 
-  const result = await Type.findOne({where: {name : req.body.type.toLowerCase()}});
-  /*.then(data => {
-    if (data) {
-      //result = data;
-    } else {
-      res.status(404).send({
-        message: `Cannot find Type.`
-      });
-    }
-  })
-  .catch(err => {
-    res.status(500).send({
-      message: "Error retrieving Type"
-    });
-  }); */
+  const typeFinder = await Type.findOne({where: {name : req.body.type.toLowerCase()}});
 
-  if (!result) {
+  if (!typeFinder) {
     res.status(404).send({
       message: `Cannot find Type.`
     });
@@ -45,30 +26,57 @@ exports.create = async (req, res) => {
   let question = {
     text: req.body.text,
     indexInsideTheQuiz: req.body.indexInsideTheQuiz,
-    typeId: result.id,
+    typeId: typeFinder.id,
     totalVoters: req.body.totalVoters ? req.body.totalVoters : 0,
     quizId: req.body.quizId,
-    answers: req.body.answers
   };
 
-  /*var answers;
+  if (req.body.answers) {
+    question.answers = req.body.answers;
+  } 
 
-  question.answers.forEach(e => answers.push({
-    text: e.text,
-    indexInsideTheQuestion: e.indexInsideTheQuestion,
-    numberOfVoters: e.numberOfVoters ? e.numberOfVoters : 0,
-    isRight: e.isRight ? e.isRight : false,
-    questionId: e.questionId
-  }));
+  if (req.body.textAnswers) {
+    question.textAnswers = req.body.textAnswers;
+  } 
 
-  question[answers] = answers;
-*/
-  //let questionId;
+  var answers = [];
 
-  Question.create(/*{*/question/*}, {include: [Answer]}*/)
+  if (question.answers) {
+    question.answers.forEach(e => answers.push({
+      text: e.text,
+      indexInsideTheQuestion: e.indexInsideTheQuestion,
+      numberOfVoters: e.numberOfVoters ? e.numberOfVoters : 0,
+      isRight: e.isRight ? e.isRight : false,
+      questionId: e.questionId
+    }));
+
+    question.answers = answers;
+  }
+
+  var textAnswers = [];
+
+  if (question.textAnswers) {
+    question.textAnswers.forEach(e => textAnswers.push({
+      userText: e.userText,
+      numberOfVoters: e.numberOfVoters ? e.numberOfVoters : 0,
+      questionId: e.questionId
+    }));
+
+    question.textAnswers = textAnswers;
+  }
+
+  await Question.create(question, {include: [
+    {
+      model: Answer,
+      required: false
+    }, 
+    { 
+      model: TextAnswer,
+      required: false
+    }
+  ]})
     .then(data => {
       res.send(data);
-      //questionId = data.id;
     })
     .catch(err => {
       res.status(500).send({
@@ -77,15 +85,15 @@ exports.create = async (req, res) => {
       });
     });
 
-  /*
-  if (req.body.type.toLowerCase() == "answer") {
+  
+  /*if (req.body.type.toLowerCase() == "answer") {
     if (req.body.textAnswers) {
       res.status(400).send({
         message: "type is answer, why are there textAnswers?"
       });
     } else if (req.body.answers)
       req.body.questions.forEach(element => {
-        element["questionId"] = questionId;
+        element["questionId"] = questionFinder.id;
         const reqElement = {body : element};
         answerController.create(reqElement, res);
     });  
@@ -98,13 +106,11 @@ exports.create = async (req, res) => {
       });
     } else if (req.body.textAnswers)
       req.body.questions.forEach(element => {
-        element["questionId"] = questionId;
+        element["questionId"] = questionFinder.id;
         const reqElement = {body : element};
         textAnswerController.create(reqElement, res);
     });  
-  } 
-  
-  */
+  } */
 }
 
 exports.findById = (req, res) => {

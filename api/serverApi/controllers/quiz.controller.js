@@ -12,7 +12,7 @@ const Answer = db.answers;
 const User = db.users;
 const Op = db.Sequelize.Op;
 
-exports.create = (req, res) => {
+exports.create = async (req, res) => {
   console.log("Posting quiz");
   if (!req.body) {
     res.status(400).send({
@@ -23,12 +23,101 @@ exports.create = (req, res) => {
   let quiz = {
     name: req.body.name,
     userLogin: req.body.userLogin ? req.body.userLogin : null,
-    isActive: req.body.isActive ? req.body.isActive : false
+    isActive: req.body.isActive ? req.body.isActive : false,
+    images: req.body.images,
+    questions: req.body.questions
   };
+
+  var questions = [];
+
+  if (quiz.questions) {
+    quiz.questions.forEach(async e => {
+      const typeFinder = await Type.findOne({where: {name : req.body.type.toLowerCase()}});
+
+      if (!typeFinder) {
+        res.status(404).send({
+          message: `Cannot find Type.`
+        });
+      }
+
+      let question = {
+        text: e.text,
+        indexInsideTheQuiz: e.indexInsideTheQuiz,
+        typeId: typeFinder.id,
+        totalVoters: e.totalVoters ? e.totalVoters : 0,
+        quizId: e.quizId,
+        answers: e.answers ? e.answers : null,
+        textAnswers: e.textAnswers ? e.textAnswers : null
+      }
+
+      var answers = [];
+
+      if (question.answers) {
+        question.answers.forEach(e2 => answers.push({
+          text: e2.text,
+          indexInsideTheQuestion: e2.indexInsideTheQuestion,
+          numberOfVoters: e2.numberOfVoters ? e2.numberOfVoters : 0,
+          isRight: e2.isRight ? e2.isRight : false,
+          questionId: e2.questionId
+        }));
+      }
+
+      question[answers] = answers;
+
+      var textAnswers = [];
+
+      if (question.textAnswers) {
+        question.textAnswers.forEach(e2 => textAnswers.push({
+          userText: e2.quizId,
+          numberOfVoters: e2.numberOfVoters ? e2.numberOfVoters : 0,
+          questionId: e2.questionId
+        }));
+      }
+
+      question[textAnswers] = textAnswers;
+
+      questions.push(question);
+    });
+  }
+
+  var images;
+
+  if (quiz.images) {
+    quiz.images.forEach(e => images.push({
+      quizId: e.quizId,
+      url: e.url,
+      indexInsideTheQuiz: e.indexInsideTheQuiz
+    }));
+  }
 
   //let quizId = 0;
 
-  Quiz.create(quiz)
+  Quiz.create(quiz, {
+    include: [
+      {
+        model: Question, 
+        required: false,
+        include: [
+          {
+            model: Type, 
+            required: false
+          },
+          {
+            model: Answer, 
+            required: false
+          },
+          {
+            model: TextAnswer, 
+            required: false
+          }
+        ]
+      }, 
+      {
+        model: Image, 
+        required: false
+      }
+    ]
+  })
     .then(data => {
       res.send(data);
       //quizId = data.id;

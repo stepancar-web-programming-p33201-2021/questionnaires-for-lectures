@@ -19,12 +19,122 @@ exports.create = (req, res) => {
   const user = {
     login: req.body.login,
     email: req.body.email,
-    hashPassword: hash(req.body.password)
+    hashPassword: hash(req.body.password),
+    quizzes: req.body.quizzes
   };
+
+  var quizzes = [];
+
+  if (user.quizzes) {
+    user.quizzes.forEach(e => {
+      let quiz = {
+        name: e.name,
+        userLogin: e.userLogin ? e.userLogin : null,
+        isActive: e.isActive ? e.isActive : false,
+        images: e.images,
+        questions: e.images
+      };
+    
+      var questions = [];
+    
+      if (quiz.questions) {
+        quiz.questions.forEach(async e1 => {
+          const typeFinder = await Type.findOne({where: {name : req.body.type.toLowerCase()}});
+    
+          if (!typeFinder) {
+            res.status(404).send({
+              message: `Cannot find Type.`
+            });
+          }
+    
+          let question = {
+            text: e1.text,
+            indexInsideTheQuiz: e1.indexInsideTheQuiz,
+            typeId: typeFinder.id,
+            totalVoters: e1.totalVoters ? e1.totalVoters : 0,
+            quizId: e1.quizId,
+            answers: e1.answers,
+            textAnswers: e1.textAnswers
+          }
+    
+          var answers = [];
+    
+          if (question.answers) {
+            question.answers.forEach(e2 => answers.push({
+              text: e2.text,
+              indexInsideTheQuestion: e2.indexInsideTheQuestion,
+              numberOfVoters: e2.numberOfVoters ? e2.numberOfVoters : 0,
+              isRight: e2.isRight ? e2.isRight : false,
+              questionId: e2.questionId
+            }));
+          }
+    
+          question[answers] = answers;
+    
+          var textAnswers = [];
+    
+          if (question.textAnswers) {
+            question.textAnswers.forEach(e2 => textAnswers.push({
+              userText: e2.quizId,
+              numberOfVoters: e2.numberOfVoters ? e2.numberOfVoters : 0,
+              questionId: e2.questionId
+            }));
+          }
+    
+          question[textAnswers] = textAnswers;
+    
+          questions.push(question);
+        });
+      }
+    
+      var images;
+    
+      if (quiz.images) {
+        quiz.images.forEach(e1 => images.push({
+          quizId: e1.quizId,
+          url: e1.url,
+          indexInsideTheQuiz: e1.indexInsideTheQuiz
+        }));
+      }
+
+      quizzes.push(quiz);
+    });
+  }
 
   //let userId;
 
-  User.create(user)
+  User.create(user, {
+    include: [
+      {
+      model: Quiz,
+      required: false,
+      include: [
+      {
+        model: Question, 
+        required: false,
+        include: [
+          {
+            model: Type, 
+            required: false
+          },
+          {
+            model: Answer, 
+            required: false
+          },
+          {
+            model: TextAnswer, 
+            required: false
+          }
+        ]
+      }, 
+      {
+        model: Image, 
+        required: false
+      }
+    ]
+  }
+  ]
+  })
     .then(data => {
       res.send(data);
       //userId = data.id;
@@ -48,7 +158,7 @@ exports.create = (req, res) => {
 }
 
 
-exports.findByLogin = (req, res) => {
+exports.findByLogin = async (req, res) => {
   const login = req.params.login;
 
   User.findOne({
