@@ -7,7 +7,7 @@ const Type = db.types;
 const Quiz = db.quizzes;
 const Op = db.Sequelize.Op;
 
-exports.create = async (req, res) => {
+exports.create = (req, res) => {
   console.log("Posting question");
   if (!req.body) {
     res.status(400).send({
@@ -17,7 +17,7 @@ exports.create = async (req, res) => {
 
   const type = req.body.type.toLowerCase();
 
-  const typeFinder = await Type.findOne({where: {name : type}});
+  Type.findOne({where: {name : type}}).then(typeFinder => {
 
   if (!typeFinder) {
     res.status(404).send({
@@ -88,7 +88,7 @@ exports.create = async (req, res) => {
     question.textAnswers = textAnswers;
   }
 
-  await Question.create(question, {include: [
+  Question.create(question, {include: [
     {
       model: Answer,
       required: false
@@ -134,6 +134,7 @@ exports.create = async (req, res) => {
         textAnswerController.create(reqElement, res);
     });  
   } */
+});
 }
 
 exports.findById = (req, res) => {
