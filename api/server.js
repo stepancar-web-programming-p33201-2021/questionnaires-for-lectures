@@ -37,6 +37,19 @@ require("./serverApi/routes/textAnswer.router")(app);
 require("./serverApi/routes/user.router")(app);
 require("./serverApi/routes/type.router")(app);
 
+require("./serverApi/controllers/type.controller").create(
+  {
+    body: {
+      name: "answer"
+    }
+  }, null);
+
+  require("./serverApi/controllers/type.controller").create(
+    {
+      body: {
+        name: "textanswer"
+      }
+    }, null);
 
 // set port, listen for requests
 const PORT = process.env.PORT || 8080;

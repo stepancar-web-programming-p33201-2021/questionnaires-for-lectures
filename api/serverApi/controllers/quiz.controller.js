@@ -13,7 +13,6 @@ const User = db.users;
 const Op = db.Sequelize.Op;
 
 exports.create = (req, res) => {
-  console.log("Posting quiz");
   if (!req.body) {
     res.status(400).send({
       message: "Content can not be empty!"
@@ -113,16 +112,10 @@ exports.create = (req, res) => {
       }
 
       questions.push(question);
-      console.log("question:")
-      console.log(question);
-      console.log("questions:")
-      console.log(questions);
     });
 
     quiz.questions = questions;
   }
-
-  console.log(questions);
 
   var images;
 
@@ -136,10 +129,6 @@ exports.create = (req, res) => {
     quiz.images = images;
   }
 
-  //let quizId = 0;
-
-  console.log("quiz: ");
-  console.log(quiz);
 
   Quiz.create(quiz, {
     include: [
@@ -177,29 +166,6 @@ exports.create = (req, res) => {
           err.message || "Some error occurred while creating the Quiz."
       });
     });
-
-    console.log("quiz: ");
-    console.log(quiz);
-  
-  /*
-  if (req.body.images) {
-    req.body.images.forEach(element => {
-      element["quizId"] = quizId;
-      console.log(element);
-      const reqElement = {body : element};
-      imageController.create(reqElement, res);
-    });  
-  }
-
-  if (req.body.questions) {
-    req.body.questions.forEach(element => {
-      element["quizId"] = quizId;
-      console.log(element);
-      const reqElement = {body : element};
-      questionController.create(reqElement, res);
-    });  
-  }
-  */
 }
 
 
