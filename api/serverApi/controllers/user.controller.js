@@ -19,9 +19,12 @@ exports.create = (req, res) => {
   const user = {
     login: req.body.login,
     email: req.body.email,
-    hashPassword: hash(req.body.password),
-    quizzes: req.body.quizzes
+    hashPassword: hash(req.body.password)
   };
+
+  if (req.body.quizzes) {
+    user.quizzes = req.body.quizzes;
+  } 
 
   var quizzes = [];
 
@@ -30,36 +33,67 @@ exports.create = (req, res) => {
       let quiz = {
         name: e.name,
         userLogin: e.userLogin ? e.userLogin : null,
-        isActive: e.isActive ? e.isActive : false,
-        images: e.images,
-        questions: e.images
+        isActive: e.isActive ? e.isActive : false
       };
+
+      if (e.images) {
+        quiz.images = e.images;
+      } 
+    
+      if (e.questions) {
+        quiz.questions = e.questions;
+      } 
     
       var questions = [];
     
       if (quiz.questions) {
-        quiz.questions.forEach(async e1 => {
-          const typeFinder = await Type.findOne({where: {name : req.body.type.toLowerCase()}});
+        quiz.questions.forEach(e1 => {
+          //const typeFinder = Type.findOne({where: {name : e.type.toLowerCase()}});
     
+          const type = e1.type.toLowerCase();
+
+          if (type != "answer" && type != "textanswer") {
+            res.status(404).send({
+            message: `Cannot find Type.`
+          });
+        }
+
+          /*
           if (!typeFinder) {
             res.status(404).send({
               message: `Cannot find Type.`
             });
           }
+          */
     
           let question = {
             text: e1.text,
             indexInsideTheQuiz: e1.indexInsideTheQuiz,
-            typeId: typeFinder.id,
+            typeId: type == "answer" ? 1 : 2,
             totalVoters: e1.totalVoters ? e1.totalVoters : 0,
-            quizId: e1.quizId,
-            answers: e1.answers,
-            textAnswers: e1.textAnswers
+            quizId: e1.quizId
+          }
+
+          if (e1.answers && type == "answer") {
+            question.answers = e1.answers;
+          } else if (e1.answers) {
+            res.status(400).send({
+              message: `Answers are not allowed in this Type`
+            });
+          }
+        
+          if (e1.textAnswers && type == "textanswer") {
+            question.textAnswers = e1.textAnswers;
+          } else if (e1.textAnswers) {
+            res.status(400).send({
+              message: `TextAnswers are not allowed in this Type`
+            });
           }
     
           var answers = [];
     
           if (question.answers) {
+            /*
             question.answers.forEach(e2 => answers.push({
               text: e2.text,
               indexInsideTheQuestion: e2.indexInsideTheQuestion,
@@ -67,24 +101,39 @@ exports.create = (req, res) => {
               isRight: e2.isRight ? e2.isRight : false,
               questionId: e2.questionId
             }));
+            */
+
+            for (var i = 0; i < question.answers.length; i++) {
+              var e2 = question.answers[i];
+        
+              answers.push({
+                text: e2.text,
+                indexInsideTheQuestion: i,
+                numberOfVoters: e2.numberOfVoters ? e2.numberOfVoters : 0,
+                isRight: e2.isRight ? e2.isRight : false,
+                questionId: e2.questionId
+              })
+            }
+
+            question.answers = answers;
           }
-    
-          question[answers] = answers;
     
           var textAnswers = [];
     
           if (question.textAnswers) {
             question.textAnswers.forEach(e2 => textAnswers.push({
-              userText: e2.quizId,
+              userText: e2.userText,
               numberOfVoters: e2.numberOfVoters ? e2.numberOfVoters : 0,
               questionId: e2.questionId
             }));
+
+            question.textAnswers = textAnswers;
           }
-    
-          question[textAnswers] = textAnswers;
     
           questions.push(question);
         });
+
+        quiz.questions = questions;
       }
     
       var images;
@@ -99,6 +148,8 @@ exports.create = (req, res) => {
 
       quizzes.push(quiz);
     });
+
+    user.quizzes = quizzes;
   }
 
   //let userId;
@@ -142,7 +193,7 @@ exports.create = (req, res) => {
     .catch(err => {
       res.status(500).send({
         message:
-          err.message || "Some error occurred while creating the Tutorial."
+          err.message || "Some error occurred while creating the User."
       });
     });
 

@@ -15,7 +15,9 @@ exports.create = async (req, res) => {
     });
   }
 
-  const typeFinder = await Type.findOne({where: {name : req.body.type.toLowerCase()}});
+  const type = req.body.type.toLowerCase();
+
+  const typeFinder = await Type.findOne({where: {name : type}});
 
   if (!typeFinder) {
     res.status(404).send({
@@ -31,17 +33,37 @@ exports.create = async (req, res) => {
     quizId: req.body.quizId,
   };
 
-  if (req.body.answers) {
+  if (req.body.answers && type == "answer") {
     question.answers = req.body.answers;
-  } 
+  } else if (req.body.answers) {
+    res.status(400).send({
+      message: `Answers are not allowed in this Type`
+    });
+  }
 
-  if (req.body.textAnswers) {
+  if (req.body.textAnswers && type == "textanswer") {
     question.textAnswers = req.body.textAnswers;
-  } 
+  } else if (req.body.textAnswers) {
+    res.status(400).send({
+      message: `TextAnswers are not allowed in this Type`
+    });
+  }
 
   var answers = [];
 
   if (question.answers) {
+    for (var i = 0; i < question.answers.length; i++) {
+      var e = question.answers[i];
+
+      answers.push({
+        text: e.text,
+        indexInsideTheQuestion: i,
+        numberOfVoters: e.numberOfVoters ? e.numberOfVoters : 0,
+        isRight: e.isRight ? e.isRight : false,
+        questionId: e.questionId
+      })
+    }
+    /*
     question.answers.forEach(e => answers.push({
       text: e.text,
       indexInsideTheQuestion: e.indexInsideTheQuestion,
@@ -49,6 +71,7 @@ exports.create = async (req, res) => {
       isRight: e.isRight ? e.isRight : false,
       questionId: e.questionId
     }));
+    */
 
     question.answers = answers;
   }
@@ -161,6 +184,21 @@ exports.findById = (req, res) => {
 
 exports.updateById = (req, res) => {
   const id = req.params.id;
+  
+
+  const type = req.body.type.toLowerCase();
+
+  if (type) {
+    res.status(400).send({
+      message: `It is resticted to update type`
+    });
+  }
+
+  if (req.body.quizId) {
+    res.status(400).send({
+      message: `It is resticted to update quizId`
+    });
+  }
 
   Question.update(req.body, {
     where: { id: id }

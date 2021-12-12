@@ -12,7 +12,7 @@ const Answer = db.answers;
 const User = db.users;
 const Op = db.Sequelize.Op;
 
-exports.create = async (req, res) => {
+exports.create = (req, res) => {
   console.log("Posting quiz");
   if (!req.body) {
     res.status(400).send({
@@ -24,17 +24,25 @@ exports.create = async (req, res) => {
     name: req.body.name,
     userLogin: req.body.userLogin ? req.body.userLogin : null,
     isActive: req.body.isActive ? req.body.isActive : false,
-    images: req.body.images,
-    questions: req.body.questions
   };
+
+  if (req.body.images) {
+    quiz.images = req.body.images;
+  } 
+
+  if (req.body.questions) {
+    quiz.questions = req.body.questions;
+  } 
 
   var questions = [];
 
   if (quiz.questions) {
-    quiz.questions.forEach(async e => {
-      const typeFinder = await Type.findOne({where: {name : req.body.type.toLowerCase()}});
+    quiz.questions.forEach(e => {
+      //const typeFinder = Type.findOne({where: {name : e.type.toLowerCase()}});
 
-      if (!typeFinder) {
+      const type = e.type.toLowerCase();
+
+      if (type != "answer" && type != "textanswer") {
         res.status(404).send({
           message: `Cannot find Type.`
         });
@@ -43,16 +51,31 @@ exports.create = async (req, res) => {
       let question = {
         text: e.text,
         indexInsideTheQuiz: e.indexInsideTheQuiz,
-        typeId: typeFinder.id,
+        typeId: type == "answer" ? 1 : 2,
         totalVoters: e.totalVoters ? e.totalVoters : 0,
         quizId: e.quizId,
-        answers: e.answers ? e.answers : null,
-        textAnswers: e.textAnswers ? e.textAnswers : null
+      }
+
+      if (e.answers && type == "answer") {
+        question.answers = e.answers;
+      } else if (e.answers) {
+        res.status(400).send({
+          message: `Answers are not allowed in this Type`
+        });
+      }
+    
+      if (e.textAnswers && type == "textanswer") {
+        question.textAnswers = e.textAnswers;
+      } else if (e.textAnswers) {
+        res.status(400).send({
+          message: `TextAnswers are not allowed in this Type`
+        });
       }
 
       var answers = [];
 
       if (question.answers) {
+        /*
         question.answers.forEach(e2 => answers.push({
           text: e2.text,
           indexInsideTheQuestion: e2.indexInsideTheQuestion,
@@ -60,25 +83,46 @@ exports.create = async (req, res) => {
           isRight: e2.isRight ? e2.isRight : false,
           questionId: e2.questionId
         }));
-      }
+        */
 
-      question[answers] = answers;
+        for (var i = 0; i < question.answers.length; i++) {
+          var e2 = question.answers[i];
+    
+          answers.push({
+            text: e2.text,
+            indexInsideTheQuestion: i,
+            numberOfVoters: e2.numberOfVoters ? e2.numberOfVoters : 0,
+            isRight: e2.isRight ? e2.isRight : false,
+            questionId: e2.questionId
+          })
+        }
+
+        question.answers = answers;
+      }
 
       var textAnswers = [];
 
       if (question.textAnswers) {
         question.textAnswers.forEach(e2 => textAnswers.push({
-          userText: e2.quizId,
+          userText: e2.userText,
           numberOfVoters: e2.numberOfVoters ? e2.numberOfVoters : 0,
           questionId: e2.questionId
         }));
+
+        question.textAnswers = textAnswers;
       }
 
-      question[textAnswers] = textAnswers;
-
       questions.push(question);
+      console.log("question:")
+      console.log(question);
+      console.log("questions:")
+      console.log(questions);
     });
+
+    quiz.questions = questions;
   }
+
+  console.log(questions);
 
   var images;
 
@@ -88,9 +132,14 @@ exports.create = async (req, res) => {
       url: e.url,
       indexInsideTheQuiz: e.indexInsideTheQuiz
     }));
+
+    quiz.images = images;
   }
 
   //let quizId = 0;
+
+  console.log("quiz: ");
+  console.log(quiz);
 
   Quiz.create(quiz, {
     include: [
@@ -128,6 +177,9 @@ exports.create = async (req, res) => {
           err.message || "Some error occurred while creating the Quiz."
       });
     });
+
+    console.log("quiz: ");
+    console.log(quiz);
   
   /*
   if (req.body.images) {
@@ -202,7 +254,7 @@ exports.findById = (req, res) => {
 }
 
 exports.findAll = (req, res) => {
-  Tutorial.findAll({ include: Question })
+  Quiz.findAll({ include: Question })
     .then(data => {
       res.send(data);
     })
@@ -216,6 +268,12 @@ exports.findAll = (req, res) => {
 
 exports.updateById = (req, res) => {
   const id = req.params.id;
+
+  if (req.body.userLogin) {
+    res.status(400).send({
+      message: `It is resticted to update userLogin`
+    });
+  }
 
   Quiz.update(req.body, {
     where: { id: id }

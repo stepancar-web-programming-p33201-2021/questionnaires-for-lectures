@@ -68,6 +68,12 @@ exports.findById = (req, res) => {
 exports.updateById = (req, res) => {
   const id = req.params.id;
 
+  if (req.body.quizId) {
+    res.status(400).send({
+      message: `It is resticted to update quizId`
+    });
+  }
+
   Image.update(req.body, {
     where: { id: id }
   })
