@@ -233,7 +233,10 @@ exports.findById = (req, res) => {
       },
       {
         model: User, 
-        required: false
+        required: false,
+        attributes: {
+          exclude: ['hashPassword']
+        }
       }
     ]
   })
@@ -269,7 +272,9 @@ exports.findAll = (req, res) => {
 exports.updateById = (req, res) => {
   const id = req.params.id;
 
-  if (req.body.userLogin) {
+  Quiz.findByPk(id).then(quiz => {
+
+  if (req.body.userLogin && quiz.userLogin != req.body.userLogin) {
     res.status(400).send({
       message: `It is resticted to update userLogin`
     });
@@ -294,6 +299,7 @@ exports.updateById = (req, res) => {
         message: "Error updating Quiz with id=" + id
       });
     });
+  })
 }
 
 exports.activateById = (req, res) => {

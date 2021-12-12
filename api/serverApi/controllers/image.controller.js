@@ -68,7 +68,9 @@ exports.findById = (req, res) => {
 exports.updateById = (req, res) => {
   const id = req.params.id;
 
-  if (req.body.quizId) {
+  const image = Image.findByPk(id);
+
+  if (req.body.quizId && image.quizId != req.body.quizId) {
     res.status(400).send({
       message: `It is resticted to update quizId`
     });

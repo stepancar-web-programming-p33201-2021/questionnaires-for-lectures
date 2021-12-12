@@ -72,12 +72,14 @@ exports.findById = (req, res) => {
 exports.updateById = (req, res) => {
   const id = req.params.id;
 
-  if (req.body.questionId) {
+  const textAnswer = textAnswer.findByPk(id);
+
+  if (req.body.questionId && textAnswer.questionId != req.body.questionId) {
     res.status(400).send({
       message: `It is resticted to update questionId`
     });
   }
-
+  
   TextAnswer.update(req.body, {
     where: { id: id }
   })

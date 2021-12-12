@@ -160,7 +160,10 @@ exports.findById = (req, res) => {
         include: [
           {
             model: User,
-            required: false 
+            required: false,
+            attributes: {
+              exclude: ['hashPassword']
+            }
           }
         ]
       }
@@ -185,16 +188,17 @@ exports.findById = (req, res) => {
 exports.updateById = (req, res) => {
   const id = req.params.id;
   
+  Question.findByPk(id).then(question => {
 
   const type = req.body.type.toLowerCase();
 
-  if (type) {
+  if (type && !(question.typeId == 1 && req.body.type == "answer" || question.typeId == 2 && req.body.type == "textanswer")) {
     res.status(400).send({
       message: `It is resticted to update type`
     });
   }
 
-  if (req.body.quizId) {
+  if (req.body.quizId && question.quizId != req.body.quizId) {
     res.status(400).send({
       message: `It is resticted to update quizId`
     });
@@ -219,6 +223,7 @@ exports.updateById = (req, res) => {
         message: "Error updating Question with id=" + id
       });
     });
+    })
 }
 
 exports.deleteById = (req, res) => {

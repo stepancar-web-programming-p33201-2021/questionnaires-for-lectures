@@ -17,6 +17,15 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.STRING,
         allowNull: false
       }
+  }, {
+    hooks: {
+      afterCreate: (record) => {
+          delete record.dataValues.hashPassword;
+      },
+      afterUpdate: (record) => {
+          delete record.dataValues.hashPassword;
+      },
+  }
   });
 
   /*

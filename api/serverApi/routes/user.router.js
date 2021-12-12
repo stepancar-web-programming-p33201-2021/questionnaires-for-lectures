@@ -7,9 +7,9 @@ module.exports = app => {
 
   router.post("/users", users.create);
 
-  router.put("/users", users.updateById);
+  router.put("/users/:login", users.updateByLogin);
 
-  router.delete("/users", users.deleteById);
+  router.delete("/users", users.deleteByLogin);
 
   app.use("/api", router);
 };

@@ -214,6 +214,9 @@ exports.findByLogin = async (req, res) => {
 
   User.findOne({
     where: {login : login}, 
+    attributes: {
+      exclude: ['hashPassword']
+    },
     include: [
       {
       model: Quiz,
@@ -262,7 +265,7 @@ exports.findByLogin = async (req, res) => {
 }
 
 //todo
-exports.updateById = (req, res) => {
+exports.updateByLogin = (req, res) => {
   const login = req.params.login;
 
   User.update(req.body, {
@@ -287,7 +290,7 @@ exports.updateById = (req, res) => {
 }
 
 //todo
-exports.deleteById = (req, res) => {
+exports.deleteByLogin = (req, res) => {
   const login = req.params.login;
 
   User.destroy({
