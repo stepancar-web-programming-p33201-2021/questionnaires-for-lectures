@@ -1,5 +1,5 @@
 const db = require("../models");
-//const quizController = require("../controllers/quiz.controller.js");
+const codeGenerator = require("../codeGenerator");
 const User = db.users;
 const Quiz = db.quizzes;
 const Question = db.questions;
@@ -8,8 +8,10 @@ const TextAnswer = db.textAnswers;
 const Type = db.types;
 const Image = db.images;
 const Op = db.Sequelize.Op;
+const N = 6;
 
 exports.create = (req, res) => {
+
   if (!req.body) {
     res.status(400).send({
       message: "Content can not be empty!"
@@ -28,13 +30,30 @@ exports.create = (req, res) => {
 
   var quizzes = [];
 
-  if (user.quizzes) {
+  var promises = [];
+
+  var length = user.quizzes ? user.quizzes.length : 0;
+
+  for (var i = 0; i < length; i++) {
+    promises.push(codeGenerator(N));
+  }
+
+  Promise.all(promises)
+    .then(codes => {
+
+    if (user.quizzes) {
+
+    let index = 0;
+    
     user.quizzes.forEach(e => {
       let quiz = {
         name: e.name,
         userLogin: e.userLogin ? e.userLogin : null,
-        isActive: e.isActive ? e.isActive : false
+        isActive: e.isActive ? e.isActive : false,
+        code: codes[index]
       };
+
+      index++;
 
       if (e.images) {
         quiz.images = e.images;
@@ -206,6 +225,7 @@ exports.create = (req, res) => {
     });  
   }
   */
+});
 }
 
 

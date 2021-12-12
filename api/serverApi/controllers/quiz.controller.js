@@ -1,8 +1,5 @@
 const db = require("../models");  
-/*
-const questionController = require("../controllers/question.controller.js");
-const imageController = require("../controllers/image.controller.js");
-*/
+const codeGenerator = require("../codeGenerator");
 const Quiz = db.quizzes;
 const Question = db.questions;
 const Image = db.images;
@@ -11,6 +8,7 @@ const TextAnswer = db.textAnswers;
 const Answer = db.answers;
 const User = db.users;
 const Op = db.Sequelize.Op;
+const N = 6;
 
 exports.create = (req, res) => {
   if (!req.body) {
@@ -19,10 +17,15 @@ exports.create = (req, res) => {
     });
   }
 
+  let code;
+  codeGenerator(N).then(result => {
+  code = result;
+  
   let quiz = {
     name: req.body.name,
     userLogin: req.body.userLogin ? req.body.userLogin : null,
     isActive: req.body.isActive ? req.body.isActive : false,
+    code: code
   };
 
   if (req.body.images) {
@@ -166,6 +169,7 @@ exports.create = (req, res) => {
           err.message || "Some error occurred while creating the Quiz."
       });
     });
+  });
 }
 
 
