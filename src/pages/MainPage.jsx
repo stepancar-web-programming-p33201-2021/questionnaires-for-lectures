@@ -1,10 +1,12 @@
 import { Container, Grid } from '@mui/material';
 import React from 'react';
+import QuizBuilder from '../components/QuizBuilder';
 import QuizCard from '../components/QuizCard';
 
 function MainPage() {
   return (
-    <Container sx={{ padding: 5 }} maxWidth='xl'>
+      <QuizBuilder />
+    /* <Container sx={{ padding: 5 }} maxWidth='xl'>
       <Grid container spacing={2}>
         <Grid item>
           <QuizCard />
@@ -19,7 +21,7 @@ function MainPage() {
           <QuizCard />
         </Grid>
       </Grid>
-    </Container>
+    </Container> */
   );
 }
 

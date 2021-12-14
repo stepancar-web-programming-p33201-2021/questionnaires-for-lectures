@@ -5,8 +5,9 @@ import {
   CardMedia,
   Typography,
   Button,
+  Box
 } from '@mui/material';
-import { Box, display } from '@mui/system';
+
 import React from 'react';
 import testImage from '../images/3307.jpg';
 
