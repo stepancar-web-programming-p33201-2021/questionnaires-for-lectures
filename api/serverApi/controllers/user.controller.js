@@ -1,3 +1,7 @@
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import passport from 'passport';
+
 const db = require("../models");
 const codeGenerator = require("../codeGenerator");
 const User = db.users;
@@ -12,16 +16,38 @@ const N = 6;
 
 exports.create = (req, res) => {
 
+  const { errors, isValid } = validateRegisterForm(req.body);
+
+  if(!isValid) {
+    return res.status(400).json(errors);
+  }
+
+  User.findAll({ where: { login: req.body.login } }).then(foundedUser => {
+    if (foundedUser.length) {
+      return res.status(400).json({ login: 'Login already exists!' });
+    } else {
+      User.findAll({ where: { email: req.body.email} }).then(foundedUser => {
+        if (foundedUser.length) {
+          return res.status(400).json({ email: 'Email already exists!' });
+        } else {
+    
+
+  /*
   if (!req.body) {
     res.status(400).send({
       message: "Content can not be empty!"
     });
   }
+  */
+
+  bcrypt.genSalt(10, (err, salt) => {
+    bcrypt.hash(req.body.password, salt, (err, hash) => {
+      if (err) throw err;
 
   const user = {
     login: req.body.login,
     email: req.body.email,
-    hashPassword: hash(req.body.password)
+    hashPassword: hash
   };
 
   if (req.body.quizzes) {
@@ -169,6 +195,7 @@ exports.create = (req, res) => {
     });
 
     user.quizzes = quizzes;
+    
   }
 
   //let userId;
@@ -215,18 +242,64 @@ exports.create = (req, res) => {
           err.message || "Some error occurred while creating the User."
       });
     });
-
-  /*
-  if (req.body.quizzes) {
-    req.body.quizzes.forEach(element => {
-      element["userId"] = userId;
-      const reqElement = {body : element};
-      quizController.create(reqElement, res);
-    });  
-  }
-  */
 });
+})});
+}});
+}});
 }
+
+exports.login = (req, res) => {
+  const { errors, isValid } = validateLoginForm(req.body);
+
+  // check validation
+  if(!isValid) {
+    return res.status(400).json(errors);
+  }
+
+  const { login, password } = req.body;
+
+  User.findAll({ 
+    where: { 
+      login: req.body.login 
+    } 
+  })
+  .then(user => {
+
+    //check for user
+    if (!user.length) {
+      errors.login = 'User not found!';
+      return res.status(404).json(errors);
+    }
+     
+    let originalPassword = user[0].dataValues.password
+
+    //check for password
+    bcrypt
+      .compare(password, originalPassword)
+      .then(isMatch => {
+        if (isMatch) {
+          // user matched
+          console.log('matched!')
+          const { id, username } = user[0].dataValues;
+          const payload = { id, username }; //jwt payload
+          // console.log(payload)
+
+          jwt.sign(payload, 'secret', { 
+            expiresIn: 3600 
+          }, (err, token) => {
+            res.json({
+              success: true,
+              token: 'Bearer ' + token,
+              role: user[0].dataValues.role
+            });
+          });
+        } else {
+          errors.password = 'Password not correct';
+          return res.status(400).json(errors);
+        }
+    }).catch(err => console.log(err));
+  }).catch(err => res.status(500).json({err}));
+};
 
 
 exports.findByLogin = async (req, res) => {
@@ -285,6 +358,7 @@ exports.findByLogin = async (req, res) => {
 }
 
 //todo
+/*
 exports.updateByLogin = (req, res) => {
   const login = req.params.login;
 
@@ -308,6 +382,7 @@ exports.updateByLogin = (req, res) => {
       });
     });
 }
+*/
 
 //todo
 exports.deleteByLogin = (req, res) => {

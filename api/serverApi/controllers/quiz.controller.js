@@ -226,6 +226,59 @@ exports.findById = (req, res) => {
     });  
 }
 
+exports.findByCode = (req, res) => {
+  const code = req.params.code;
+
+  Quiz.findOne({
+    where: {code : code}, 
+    include: [
+      {
+        model: Question, 
+        required: false,
+        include: [
+          {
+            model: Type, 
+            required: false
+          },
+          {
+            model: Answer, 
+            required: false
+          },
+          {
+            model: TextAnswer, 
+            required: false
+          }
+        ]
+      }, 
+      {
+        model: Image, 
+        required: false
+      },
+      {
+        model: User, 
+        required: false,
+        attributes: {
+          exclude: ['hashPassword']
+        }
+      }
+    ]
+  })
+    .then(data => {
+      if (data) {
+        res.send(data);
+      } else {
+        res.status(404).send({
+          message: `Cannot find Quiz with id=${id}.`
+        });
+      }
+    })
+    .catch(err => {
+      res.status(500).send({
+        message: "Error retrieving Quiz with id=" + id
+      });
+    });  
+}
+
 exports.findAll = (req, res) => {
   Quiz.findAll({ include: Question })
     .then(data => {

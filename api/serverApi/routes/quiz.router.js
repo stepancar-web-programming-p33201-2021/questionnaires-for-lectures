@@ -5,6 +5,8 @@ module.exports = app => {
 
   router.get("/quizzes/:id", quizzes.findById);
 
+  router.get("/quizzes/code/:code", quizzes.findByCode);
+
   router.post("/quizzes", quizzes.create);
 
   router.put("/quizzes/:id", quizzes.updateById);

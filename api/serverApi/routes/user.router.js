@@ -1,3 +1,6 @@
+import passport from 'passport';
+import config from '../config/config';
+
 module.exports = app => {
   const users = require("../controllers/user.controller.js");
 
@@ -6,6 +9,8 @@ module.exports = app => {
   router.get("/users/:login", users.findByLogin);
 
   router.post("/users", users.create);
+
+  router.post('/api/users/login', login);
 
   router.put("/users/:login", users.updateByLogin);
 
