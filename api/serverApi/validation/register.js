@@ -1,12 +1,12 @@
-import Validator from 'validator';
-import isEmpty from './isEmpty';
+const Validator = require('validator');
+const isEmpty = require('./isEmpty');
 
-function validateRegisterForm(data) {
+exports.validateRegisterForm = (data) => {
   let errors = {};
 
-  data.login = !isEmpty(data.login) ? data.login : '';
-  data.email = !isEmpty(data.email) ? data.email : '';
-  data.password = !isEmpty(data.password) ? data.password : '';
+  data.login = !isEmpty.isEmpty(data.login) ? data.login : '';
+  data.email = !isEmpty.isEmpty(data.email) ? data.email : '';
+  data.password = !isEmpty.isEmpty(data.password) ? data.password : '';
 
   if (Validator.isEmpty(data.login)) {
     errors.login = 'login field is required';
@@ -30,8 +30,7 @@ function validateRegisterForm(data) {
 
   return {
     errors,
-    isValid: isEmpty(errors),
+    isValid: isEmpty.isEmpty(errors),
   };
 };
 
-export default validateRegisterForm;

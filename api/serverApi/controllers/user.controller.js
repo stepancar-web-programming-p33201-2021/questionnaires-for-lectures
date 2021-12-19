@@ -1,6 +1,9 @@
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import passport from 'passport';
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const passport = require('passport');
+
+const registrator = require('../validation/register');
+const loginator = require('../validation/login');
 
 const db = require("../models");
 const codeGenerator = require("../codeGenerator");
@@ -16,7 +19,7 @@ const N = 6;
 
 exports.create = (req, res) => {
 
-  const { errors, isValid } = validateRegisterForm(req.body);
+  const { errors, isValid } = registrator.validateRegisterForm(req.body);
 
   if(!isValid) {
     return res.status(400).json(errors);
@@ -249,14 +252,12 @@ exports.create = (req, res) => {
 }
 
 exports.login = (req, res) => {
-  const { errors, isValid } = validateLoginForm(req.body);
+  const { errors, isValid } = loginator.validateLoginForm(req.body);
 
   // check validation
   if(!isValid) {
     return res.status(400).json(errors);
   }
-
-  const { login, password } = req.body;
 
   User.findAll({ 
     where: { 
@@ -271,17 +272,17 @@ exports.login = (req, res) => {
       return res.status(404).json(errors);
     }
      
-    let originalPassword = user[0].dataValues.password
+    let originalPassword = user[0].dataValues.hashPassword
 
     //check for password
     bcrypt
-      .compare(password, originalPassword)
+      .compare(req.body.password, originalPassword)
       .then(isMatch => {
         if (isMatch) {
           // user matched
           console.log('matched!')
-          const { id, username } = user[0].dataValues;
-          const payload = { id, username }; //jwt payload
+          const { login } = user[0].dataValues;
+          const payload = { login }; //jwt payload
           // console.log(payload)
 
           jwt.sign(payload, 'secret', { 
@@ -289,8 +290,7 @@ exports.login = (req, res) => {
           }, (err, token) => {
             res.json({
               success: true,
-              token: 'Bearer ' + token,
-              role: user[0].dataValues.role
+              token: 'Bearer ' + token
             });
           });
         } else {
@@ -301,9 +301,63 @@ exports.login = (req, res) => {
   }).catch(err => res.status(500).json({err}));
 };
 
-
 exports.findByLogin = async (req, res) => {
   const login = req.params.login;
+
+  User.findOne({
+    where: {login : login}, 
+    attributes: {
+      exclude: ['hashPassword']
+    },
+    include: [
+      {
+      model: Quiz,
+      required: false,
+      include: [
+      {
+        model: Question, 
+        required: false,
+        include: [
+          {
+            model: Type, 
+            required: false
+          },
+          {
+            model: Answer, 
+            required: false
+          },
+          {
+            model: TextAnswer, 
+            required: false
+          }
+        ]
+      }, 
+      {
+        model: Image, 
+        required: false
+      }
+    ]
+  }
+    ]
+  })
+    .then(data => {
+      if (data) {
+        res.send(data);
+      } else {
+        res.status(404).send({
+          message: `Cannot find User`
+        });
+      }
+    })
+    .catch(err => {
+      res.status(500).send({
+        message: "Error retrieving User"
+      });
+    });
+}
+
+exports.findAuthenticated = async (req, res) => {
+  const login = req.user.login;
 
   User.findOne({
     where: {login : login}, 
@@ -385,11 +439,11 @@ exports.updateByLogin = (req, res) => {
 */
 
 //todo
-exports.deleteByLogin = (req, res) => {
-  const login = req.params.login;
+exports.delete = (req, res) => {
+  const login = req.user.login;
 
   User.destroy({
-    where: { id: id }
+    where: { login: login }
   })
     .then(num => {
       if (num == 1) {
@@ -409,6 +463,7 @@ exports.deleteByLogin = (req, res) => {
     });
 }
 
+/*
 exports.findAll = (req, res) => {
   User.findAll()
     .then(data => {
@@ -421,8 +476,4 @@ exports.findAll = (req, res) => {
       });
   });
 }
-
-function hash(s) {
-  return s;
-  //todo
-}
+*/

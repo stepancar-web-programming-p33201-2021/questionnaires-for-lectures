@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
-const passport   = require('passport')
+const passport = require('passport')
 const bodyParser = require('body-parser')
 
 var corsOptions = {
@@ -16,7 +16,7 @@ app.set('view engine', 'ejs');
 app.use(express.static(__dirname + '/public'));
 
 app.use(passport.initialize());
-require('./config/passport')(passport);
+require('./serverApi/config/passport')(passport);
 
 const db = require("./serverApi/models");
 
@@ -34,7 +34,6 @@ require("./serverApi/routes/textAnswer.router")(app);
 require("./serverApi/routes/user.router")(app);
 require("./serverApi/routes/type.router")(app);
 require('./serverApi/config/passport.js')(passport, db.users);
-require('./serverApi/routes/auth.router.js')(app,passport);
 
 require("./serverApi/controllers/type.controller").create(
   {

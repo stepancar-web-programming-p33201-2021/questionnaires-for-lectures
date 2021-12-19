@@ -1,21 +1,26 @@
-import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt'
+//import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt'
+const jwt = require('passport-jwt');
 const db = require("../models");
 
 const Users = db.users;
 
 const opts = {};
-opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
+opts.jwtFromRequest = jwt.ExtractJwt.fromAuthHeaderAsBearerToken();
 opts.secretOrKey = 'secret';
+//opts.Authorization = 'Bearer ' + {token};
+
 // opts.issuer = 'accounts.examplesoft.com';
 // opts.audience = 'yoursite.net';
 
 // create jwt strategy
 module.exports = passport => {
   passport.use(
-    new JwtStrategy(opts, (jwt_payload, done) => {
-      Users.findAll({ where: { id: jwt_payload.id } })
+    new jwt.Strategy(opts, (jwt_payload, done) => {
+      console.log(jwt_payload);
+      Users.findOne({ where: { login: jwt_payload.login } })
         .then(user => {
-          if (user.length) {
+          console.log(user);
+          if (user) {
             return done(null, user);
           }
           return done(null, false);

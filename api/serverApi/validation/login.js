@@ -1,11 +1,11 @@
-import Validator from 'validator';
-import isEmpty from './isEmpty';
+const Validator = require('validator');
+const isEmpty = require('./isEmpty');
 
-function validateLoginForm(data) {
+exports.validateLoginForm = (data) => {
   let errors = {};
 
-  data.email = !isEmpty(data.login) ? data.login : '';
-  data.password = !isEmpty(data.password) ? data.password : '';
+  data.email = !isEmpty.isEmpty(data.login) ? data.login : '';
+  data.password = !isEmpty.isEmpty(data.password) ? data.password : '';
 
   if (Validator.isEmpty(data.login)) {
     errors.email = 'Login is required';
@@ -17,8 +17,6 @@ function validateLoginForm(data) {
 
   return {
     errors,
-    isValid: isEmpty(errors),
+    isValid: isEmpty.isEmpty(errors),
   };
 };
-
-export default validateLoginForm

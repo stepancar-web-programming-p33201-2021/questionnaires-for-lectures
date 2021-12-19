@@ -1,20 +1,29 @@
-import passport from 'passport';
-import config from '../config/config';
+passport = require("passport");
 
 module.exports = app => {
   const users = require("../controllers/user.controller.js");
 
   var router = require("express").Router();
 
-  router.get("/users/:login", users.findByLogin);
+  router.get("/users/page/:login", users.findByLogin);
+
+  router.get("/users", 
+  passport.authenticate('jwt', { 
+    session: false 
+  }),
+  users.findAuthenticated);
 
   router.post("/users", users.create);
 
-  router.post('/api/users/login', login);
+  router.post('/users/login', users.login);
 
-  router.put("/users/:login", users.updateByLogin);
+  //router.put("/users/:login", users.updateByLogin);
 
-  router.delete("/users", users.deleteByLogin);
+  router.delete("/users", 
+  passport.authenticate('jwt', { 
+    session: false 
+  }),
+  users.delete);
 
   app.use("/api", router);
 };
