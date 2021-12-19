@@ -23,7 +23,7 @@ exports.create = (req, res) => {
   
   let quiz = {
     name: req.body.name,
-    userLogin: req.body.userLogin ? req.body.userLogin : null,
+    userLogin: req.user.login ? req.user.login : null,
     isActive: req.body.isActive ? req.body.isActive : false,
     code: code
   };
@@ -172,7 +172,6 @@ exports.create = (req, res) => {
   });
 }
 
-
 exports.findById = (req, res) => {
   const id = req.params.id;
 
@@ -212,16 +211,22 @@ exports.findById = (req, res) => {
   })
     .then(data => {
       if (data) {
-        res.send(data);
+        if (data.userLogin == req.user.login) {
+          res.send(data);
+        } else {
+          res.status(403).send({
+            message: `Forbidden.`
+          });
+        }
       } else {
         res.status(404).send({
-          message: `Cannot find Quiz with id=${id}.`
+          message: `Cannot find Quiz with id = ${id}.`
         });
       }
     })
     .catch(err => {
       res.status(500).send({
-        message: "Error retrieving Quiz with id=" + id
+        message: "Error retrieving Quiz with id = " + id
       });
     });  
 }
@@ -265,22 +270,28 @@ exports.findByCode = (req, res) => {
   })
     .then(data => {
       if (data) {
-        res.send(data);
+        if (data.isActive) {
+          res.send(data);
+        } else {
+          res.status(403).send({
+            message: `Quiz with code ${code} is not active.`
+          });
+        }
       } else {
         res.status(404).send({
-          message: `Cannot find Quiz with id=${id}.`
+          message: `Cannot find Quiz with code = ${code}.`
         });
       }
     })
     .catch(err => {
       res.status(500).send({
-        message: "Error retrieving Quiz with id=" + id
+        message: "Error retrieving Quiz with code = " + code
       });
     });  
 }
 
-exports.findAll = (req, res) => {
-  Quiz.findAll({ include: Question })
+exports.findAllOfUser = (req, res) => {
+  Quiz.findAll({ where: {userLogin: req.user.login}, include: Question })
     .then(data => {
       res.send(data);
     })
@@ -295,7 +306,13 @@ exports.findAll = (req, res) => {
 exports.updateById = (req, res) => {
   const id = req.params.id;
 
-  Quiz.findByPk(id).then(quiz => {
+  Quiz.findOne({where: {id: id}}).then(quiz => {
+
+  if (quiz.userLogin != req.user.login) {
+    res.status(403).send({
+      message: `Forbidden`
+    });
+  }
 
   if (req.body.userLogin && quiz.userLogin != req.body.userLogin) {
     res.status(400).send({
@@ -303,17 +320,30 @@ exports.updateById = (req, res) => {
     });
   }
 
-  Quiz.update(req.body, {
-    where: { id: id }
+  if (req.body.id && quiz.id != req.body.id) {
+    res.status(400).send({
+      message: `It is resticted to update id`
+    });
+  }
+
+  if (req.body.code && quiz.code != req.body.code) {
+    res.status(400).send({
+      message: `It is resticted to update code`
+    });
+  }
+
+  quiz.update({
+    name: req.body.name ? req.body.name : quiz.name,
+    isActive: req.body.isActive ? req.body.isActive : quiz.isActive
   })
     .then(num => {
-      if (num == 1) {
+      if (num) {
         res.send({
           message: "Quiz was updated successfully."
         });
       } else {
         res.send({
-          message: `Cannot update Quiz with id=${id}. Maybe Quiz was not found or req.body is empty!`
+          message: `Cannot update Quiz with id = ${id}. Maybe Quiz was not found`
         });
       }
     })
@@ -327,20 +357,24 @@ exports.updateById = (req, res) => {
 
 exports.activateById = (req, res) => {
   const id = req.params.id;
-  let quiz = Quiz.findById(id);
-  quiz.isActive = true;
+  Quiz.findOne({where: {id : id}}).then(quiz => {
+  if (quiz.userLogin != req.user.login) {
+    res.status(403).send({
+      message: `Forbidden`
+    });
+  }
 
-  Quiz.update(req.body, {
-    where: { id: id }
+  quiz.update({
+    isActive: true
   })
     .then(num => {
-      if (num == 1) {
+      if (num) {
         res.send({
           message: "Quiz was activated successfully."
         });
       } else {
         res.send({
-          message: `Cannot activate Quiz with id=${id}. Maybe Quiz was not found`
+          message: `Cannot activate Quiz with id = ${id}. Maybe Quiz was not found`
         });
       }
     })
@@ -349,24 +383,30 @@ exports.activateById = (req, res) => {
         message: "Error updating Quiz with id=" + id
       });
     });
+  });
+
 }
 
 exports.deactivateById = (req, res) => {
   const id = req.params.id;
-  let quiz = Quiz.findById(id);
-  quiz.isActive = false;
+  Quiz.findOne({where: {id : id}}).then(quiz => {
+  if (quiz.userLogin != req.user.login) {
+    res.status(403).send({
+      message: `Forbidden`
+    });
+  }
 
-  Quiz.update(req.body, {
-    where: { id: id }
+  quiz.update({
+    isActive: false
   })
     .then(num => {
-      if (num == 1) {
+      if (num) {
         res.send({
-          message: "Quiz was activated successfully."
+          message: "Quiz was deactivated successfully."
         });
       } else {
         res.send({
-          message: `Cannot activate Quiz with id=${id}. Maybe Quiz was not found`
+          message: `Cannot deactivate Quiz with id = ${id}. Maybe Quiz was not found`
         });
       }
     })
@@ -375,10 +415,20 @@ exports.deactivateById = (req, res) => {
         message: "Error updating Quiz with id=" + id
       });
     });
+  });
 }
 
 exports.deleteById = (req, res) => {
   const id = req.params.id;
+
+  Quiz.findOne({
+    where: { id: id }
+  }).then(quiz => {
+  if (quiz.userLogin != req.user.login) {
+    res.status(403).send({
+      message: `Forbidden`
+    });
+  }
 
   Quiz.destroy({
     where: { id: id }
@@ -399,4 +449,5 @@ exports.deleteById = (req, res) => {
         message: "Could not delete Quiz with id=" + id
       });
     });
+  });
 }

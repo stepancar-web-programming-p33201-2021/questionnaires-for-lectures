@@ -301,6 +301,7 @@ exports.login = (req, res) => {
   }).catch(err => res.status(500).json({err}));
 };
 
+/*
 exports.findByLogin = async (req, res) => {
   const login = req.params.login;
 
@@ -355,6 +356,7 @@ exports.findByLogin = async (req, res) => {
       });
     });
 }
+*/
 
 exports.findAuthenticated = async (req, res) => {
   const login = req.user.login;

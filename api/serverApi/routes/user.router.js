@@ -5,7 +5,7 @@ module.exports = app => {
 
   var router = require("express").Router();
 
-  router.get("/users/page/:login", users.findByLogin);
+  //router.get("/users/page/:login", users.findByLogin);
 
   router.get("/users", 
   passport.authenticate('jwt', { 
@@ -16,8 +16,6 @@ module.exports = app => {
   router.post("/users", users.create);
 
   router.post('/users/login', users.login);
-
-  //router.put("/users/:login", users.updateByLogin);
 
   router.delete("/users", 
   passport.authenticate('jwt', { 

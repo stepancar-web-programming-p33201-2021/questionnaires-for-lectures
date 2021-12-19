@@ -25,7 +25,7 @@ exports.validateRegisterForm = (data) => {
   }
 
   if (!Validator.isLength(data.password, { min: 6, max: 30 })) {
-    errors.password = 'password must be at least 6 characters long';
+    errors.password = 'password must be at least 6 characters long and not longer than 30 characters';
   }
 
   return {
