@@ -6,12 +6,26 @@ const Question = db.questions;
 const Op = db.Sequelize.Op;
 
 exports.create = (req, res) => {
-  console.log("Posting Answer");
   
-  if (!req.body) {
+  if (!req.body.text) {
     res.status(400).send({
-      message: "Content can not be empty!"
+      message: "text is required"
     });
+    return;
+  }
+
+  if (!req.body.indexInsideTheQuestion) {
+    res.status(400).send({
+      message: "indexInsideTheQuestion is required"
+    });
+    return;
+  }
+
+  if (!req.body.text) {
+    res.status(400).send({
+      message: "questionId is required"
+    });
+    return;
   }
 
   let answer = {
@@ -27,6 +41,7 @@ exports.create = (req, res) => {
       res.status(404).send({
         message: "Not Found Question for this QuestionId"
       });
+      return;
     }
 
     Quiz.findOne({where: {id : question.quizId}}).then(quiz => {
@@ -34,17 +49,27 @@ exports.create = (req, res) => {
         res.status(403).send({
           message: `Forbidden`
         });
+        return;
+      }
+
+      if (question.typeId != 1) {
+        res.status(400).send({
+          message: `Cannot add answer to the question of this type`
+        });
+        return;
       }
 
   Answer.create(answer)
     .then(data => {
       res.send(data);
+      return;
     })
     .catch(err => {
       res.status(500).send({
         message:
           err.message || "Some error occurred while creating the Answer."
       });
+      return;
     });
   });
 });
@@ -65,7 +90,10 @@ exports.findById = (req, res) => {
           include: [
             {
               model: User,
-              required: false 
+              required: false,
+              attributes: {
+                exclude: ['hashPassword']
+              }
             }
           ]
         }
@@ -78,19 +106,23 @@ exports.findById = (req, res) => {
           res.status(403).send({
             message: `Forbidden`
           });
+          return;
         }
 
         res.send(data);
+        return;
       } else {
         res.status(404).send({
           message: "Not found"
         });
+        return;
       }
     })
     .catch(err => {
       res.status(500).send({
         message: "Error retrieving Answer with id=" + id
       });
+      return;
     });  
 }
 
@@ -103,6 +135,7 @@ exports.updateById = (req, res) => {
       res.status(404).send({
         message: `Not Found`
       });
+      return;
     }
   
     Question.findByPk(answer.questionId).then(question => {
@@ -111,18 +144,21 @@ exports.updateById = (req, res) => {
       res.status(403).send({
         message: `Forbidden`
       });
+      return;
     }
 
   if (req.body.questionId && answer.questionId != req.body.questionId) {
     res.status(400).send({
       message: `It is resticted to update questionId`
     });
+    return;
   }
 
   if (req.body.id && answer.id != req.body.id) {
     res.status(400).send({
       message: `It is resticted to update id`
     });
+    return;
   }
 
   answer.update({
@@ -136,16 +172,19 @@ exports.updateById = (req, res) => {
         res.send({
           message: "Answer was updated successfully."
         });
+        return;
       } else {
         res.send({
           message: `Cannot update Answer with id=${id}.`
         });
+        return;
       }
     })
     .catch(err => {
       res.status(500).send({
         message: "Error updating Answer with id=" + id
       });
+      return;
     });
   });
   });
@@ -161,6 +200,7 @@ exports.deleteById = (req, res) => {
       res.status(404).send({
         message: `Not Found`
       });
+      return;
     }
   
     Question.findByPk(answer.questionId).then(question => {
@@ -170,6 +210,7 @@ exports.deleteById = (req, res) => {
       res.status(403).send({
         message: `Forbidden`
       });
+      return;
     }
 
 
@@ -177,20 +218,23 @@ exports.deleteById = (req, res) => {
     where: { id: id }
   })
     .then(num => {
-      if (num == 1) {
+      if (num) {
         res.send({
           message: "Answer was deleted successfully!"
         });
+        return;
       } else {
         res.send({
           message: `Cannot delete Answer with id=${id}. Maybe Answer was not found!`
         });
+        return;
       }
     })
     .catch(err => {
       res.status(500).send({
         message: "Could not delete Answer with id=" + id
       });
+      return;
     });
   });
 });

@@ -5,11 +5,26 @@ const User = db.users;
 const Op = db.Sequelize.Op;
 
 exports.create = (req, res) => {
-  console.log("Posting Image");
-  if (!req.body) {
+
+  if (!req.body.quizId) {
     res.status(400).send({
-      message: "Content can not be empty!"
+      message: "quizId is required"
     });
+    return;
+  }
+
+  if (!req.body.url) {
+    res.status(400).send({
+      message: "url is required"
+    });
+    return;
+  }
+
+  if (!req.body.indexInsideTheQuiz) {
+    res.status(400).send({
+      message: "indexInsideTheQuiz is required"
+    });
+    return;
   }
 
   let image = {
@@ -24,23 +39,27 @@ exports.create = (req, res) => {
       res.status(404).send({
         message: "Not Found Quiz for this QuizId"
       });
+      return;
     }
 
     if (quiz.userLogin != req.user.login) {
       res.status(403).send({
         message: `Forbidden`
       });
+      return;
     }
 
   Image.create(image)
     .then(data => {
       res.send(data);
+      return;
     })
     .catch(err => {
       res.status(500).send({
         message:
           err.message || "Some error occurred while creating the Image."
       });
+      return;
     });
   });
 }
@@ -58,7 +77,10 @@ exports.findById = (req, res) => {
         include: [
           {
             model: User,
-            required: false 
+            required: false,
+            attributes: {
+              exclude: ['hashPassword']
+            }
           }
         ]
       }
@@ -70,19 +92,23 @@ exports.findById = (req, res) => {
           res.status(403).send({
             message: `Forbidden`
           });
+          return;
         }
 
         res.send(data);
+        return;
       } else {
         res.status(404).send({
           message: "Not found"
         });
+        return;
       }
     })
     .catch(err => {
       res.status(500).send({
         message: "Error retrieving Image with id=" + id
       });
+      return;
     });  
 }
 
@@ -95,6 +121,7 @@ exports.updateById = (req, res) => {
       res.status(404).send({
         message: `Not Found`
       });
+      return;
     }
   
     Quiz.findByPk(image.quizId).then(quiz => {
@@ -103,12 +130,21 @@ exports.updateById = (req, res) => {
       res.status(403).send({
         message: `Forbidden`
       });
+      return;
     }
 
   if (req.body.quizId && image.quizId != req.body.quizId) {
     res.status(400).send({
       message: `It is resticted to update quizId`
     });
+    return;
+  }
+
+  if (req.body.id && image.id != req.body.id) {
+    res.status(400).send({
+      message: `It is resticted to update id`
+    });
+    return;
   }
 
   image.update({
@@ -120,16 +156,19 @@ exports.updateById = (req, res) => {
         res.send({
           message: "Image was updated successfully."
         });
+        return;
       } else {
         res.send({
           message: `Cannot update Image with id=${id}.`
         });
+        return;
       }
     })
     .catch(err => {
       res.status(500).send({
         message: "Error updating Image with id=" + id
       });
+      return;
     });
   });
 });
@@ -144,6 +183,7 @@ exports.deleteById = (req, res) => {
       res.status(404).send({
         message: `Not Found`
       });
+      return;
     }
   
     Quiz.findOne({
@@ -154,6 +194,7 @@ exports.deleteById = (req, res) => {
       res.status(403).send({
         message: `Forbidden`
       });
+      return;
     }
 
   Image.destroy({
@@ -164,16 +205,19 @@ exports.deleteById = (req, res) => {
         res.send({
           message: "Image was deleted successfully!"
         });
+        return;
       } else {
         res.send({
           message: `Cannot delete Image with id=${id}.`
         });
+        return;
       }
     })
     .catch(err => {
       res.status(500).send({
         message: "Could not delete Image with id=" + id
       });
+      return;
     });
   });
 });

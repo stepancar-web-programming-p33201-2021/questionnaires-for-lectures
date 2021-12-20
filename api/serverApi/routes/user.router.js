@@ -5,8 +5,6 @@ module.exports = app => {
 
   var router = require("express").Router();
 
-  //router.get("/users/page/:login", users.findByLogin);
-
   router.get("/users", 
   passport.authenticate('jwt', { 
     session: false 

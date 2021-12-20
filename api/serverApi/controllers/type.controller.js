@@ -35,11 +35,13 @@ exports.findById = (req, res) => {
         res.status(404).send({
           message: `Cannot find Type with id=${id}.`
         });
+        return;
       }
     })
     .catch(err => {
       res.status(500).send({
         message: "Error retrieving Type with id=" + id
       });
+      return;
     });  
 }

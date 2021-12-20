@@ -6,15 +6,23 @@ const Quiz = db.quizzes;
 const Op = db.Sequelize.Op;
 
 exports.create = (req, res) => {
-  console.log("Posting TextAnswer");
-  if (!req.body) {
+
+  if (!req.body.userText) {
     res.status(400).send({
-      message: "Content can not be empty!"
+      message: "userText is required"
     });
+    return;
+  }
+
+  if (!req.body.questionId) {
+    res.status(400).send({
+      message: "questionId is required"
+    });
+    return;
   }
 
   let textAnswer = {
-    userText: req.body.quizId,
+    userText: req.body.userText,
     numberOfVoters: req.body.numberOfVoters ? req.body.numberOfVoters : 0,
     questionId: req.body.questionId
   };
@@ -24,6 +32,7 @@ exports.create = (req, res) => {
       res.status(404).send({
         message: "Not Found Question for this QuestionId"
       });
+      return;
     }
 
     Quiz.findOne({where: {id : question.quizId}}).then(quiz => {
@@ -31,17 +40,27 @@ exports.create = (req, res) => {
         res.status(403).send({
           message: `Forbidden`
         });
+        return;
+      }
+
+      if (question.typeId != 2) {
+        res.status(400).send({
+          message: `Cannot add textAnswer to the question of this type`
+        });
+        return;
       }
 
   TextAnswer.create(textAnswer)
     .then(data => {
       res.send(data);
+      return;
     })
     .catch(err => {
       res.status(500).send({
         message:
           err.message || "Some error occurred while creating the TextAnswer."
       });
+      return;
     });
   });
 });
@@ -52,6 +71,71 @@ exports.findById = (req, res) => {
 
   TextAnswer.findOne({
     where: {id : id}, 
+    include: [{
+      model: Question, 
+      required: false,
+      include: [
+        {
+          model: Quiz,
+          required: false,
+          include: [
+            {
+              model: User,
+              required: false,
+              attributes: {
+                exclude: ['hashPassword']
+              }
+            }
+          ]
+        }
+      ]
+    }]
+  })
+    .then(data => {
+      if (data) {
+        if (data.question.quiz.userLogin != req.user.login) {
+          res.status(403).send({
+            message: `Forbidden`
+          });
+          return;
+        }
+
+        res.send(data);
+        return;
+      } else {
+        res.status(404).send({
+          message: "Not found"
+        });
+        return;
+      }
+    })
+    .catch(err => {
+      res.status(500).send({
+        message: "Error retrieving TextAnswer with id=" + id
+      });
+      return;
+    });  
+}
+
+exports.findByUserText = (req, res) => {
+  if (!req.body.userText) {
+    res.status(400).send({
+      message: "userText is required"
+    });
+    return;
+  }
+
+  if (!req.body.questionId) {
+    res.status(400).send({
+      message: "QuestionId is required"
+    });
+    return;
+  }
+
+  const userText = req.body.userText;
+
+  TextAnswer.findOne({
+    where: {userText : userText, questionId: req.body.questionId}, 
     include: [{
       model: Question, 
       required: false,
@@ -75,19 +159,23 @@ exports.findById = (req, res) => {
           res.status(403).send({
             message: `Forbidden`
           });
+          return;
         }
 
         res.send(data);
+        return;
       } else {
         res.status(404).send({
           message: "Not found"
         });
+        return;
       }
     })
     .catch(err => {
       res.status(500).send({
         message: "Error retrieving TextAnswer with id=" + id
       });
+      return;
     });  
 }
 
@@ -100,6 +188,7 @@ exports.updateById = (req, res) => {
       res.status(404).send({
         message: `Not Found`
       });
+      return;
     }
   
     Question.findByPk(textAnswer.questionId).then(question => {
@@ -108,6 +197,7 @@ exports.updateById = (req, res) => {
       res.status(403).send({
         message: `Forbidden`
       });
+      return;
     }
 
 
@@ -115,34 +205,39 @@ exports.updateById = (req, res) => {
     res.status(400).send({
       message: `It is resticted to update questionId`
     });
+    return;
   }
 
   if (req.body.id && textAnswer.id != req.body.id) {
     res.status(400).send({
       message: `It is resticted to update id`
     });
+    return;
   }
   
-  answer.update({
+  textAnswer.update({
     userText: req.body.userText ? req.body.userText : textAnswer.text,
-    numberOfVoters: req.body.numberOfVoters ? req.body.numberOfVoters : answer.numberOfVoters,
-    indexInsideTheQuestion: req.body.indexInsideTheQuestion ? req.body.indexInsideTheQuestion : answer.indexInsideTheQuestion
+    numberOfVoters: req.body.numberOfVoters ? req.body.numberOfVoters : textAnswer.numberOfVoters,
+    indexInsideTheQuestion: req.body.indexInsideTheQuestion ? req.body.indexInsideTheQuestion : textAnswer.indexInsideTheQuestion
   })
     .then(num => {
       if (num) {
         res.send({
           message: "TextAnswer was updated successfully."
         });
+        return;
       } else {
         res.send({
           message: `Cannot update TextAnswer with id=${id}.`
         });
+        return;
       }
     })
     .catch(err => {
       res.status(500).send({
         message: "Error updating TextAnswer with id=" + id
       });
+      return;
     });
   });
 });
@@ -158,6 +253,7 @@ exports.deleteById = (req, res) => {
       res.status(404).send({
         message: `Not Found`
       });
+      return;
     }
   
     Question.findByPk(textAnswer.questionId).then(question => {
@@ -167,26 +263,30 @@ exports.deleteById = (req, res) => {
       res.status(403).send({
         message: `Forbidden`
       });
+      return;
     }
 
   TextAnswer.destroy({
     where: { id: id }
   })
     .then(num => {
-      if (num == 1) {
+      if (num) {
         res.send({
           message: "TextAnswer was deleted successfully!"
         });
+        return;
       } else {
         res.send({
           message: `Cannot delete TextAnswer with id=${id}. Maybe TextAnswer was not found!`
         });
+        return;
       }
     })
     .catch(err => {
       res.status(500).send({
         message: "Could not delete TextAnswer with id=" + id
       });
+      return;
     });
   });
 });

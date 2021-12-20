@@ -33,15 +33,6 @@ exports.create = (req, res) => {
         if (foundedUser.length) {
           return res.status(400).json({ email: 'Email already exists!' });
         } else {
-    
-
-  /*
-  if (!req.body) {
-    res.status(400).send({
-      message: "Content can not be empty!"
-    });
-  }
-  */
 
   bcrypt.genSalt(10, (err, salt) => {
     bcrypt.hash(req.body.password, salt, (err, hash) => {
@@ -96,24 +87,16 @@ exports.create = (req, res) => {
     
       if (quiz.questions) {
         quiz.questions.forEach(e1 => {
-          //const typeFinder = Type.findOne({where: {name : e.type.toLowerCase()}});
     
           const type = e1.type.toLowerCase();
 
           if (type != "answer" && type != "textanswer") {
             res.status(404).send({
-            message: `Cannot find Type.`
-          });
-        }
-
-          /*
-          if (!typeFinder) {
-            res.status(404).send({
               message: `Cannot find Type.`
             });
-          }
-          */
-    
+          return;
+        }
+
           let question = {
             text: e1.text,
             indexInsideTheQuiz: e1.indexInsideTheQuiz,
@@ -128,6 +111,7 @@ exports.create = (req, res) => {
             res.status(400).send({
               message: `Answers are not allowed in this Type`
             });
+            return;
           }
         
           if (e1.textAnswers && type == "textanswer") {
@@ -136,20 +120,12 @@ exports.create = (req, res) => {
             res.status(400).send({
               message: `TextAnswers are not allowed in this Type`
             });
+            return;
           }
     
           var answers = [];
     
           if (question.answers) {
-            /*
-            question.answers.forEach(e2 => answers.push({
-              text: e2.text,
-              indexInsideTheQuestion: e2.indexInsideTheQuestion,
-              numberOfVoters: e2.numberOfVoters ? e2.numberOfVoters : 0,
-              isRight: e2.isRight ? e2.isRight : false,
-              questionId: e2.questionId
-            }));
-            */
 
             for (var i = 0; i < question.answers.length; i++) {
               var e2 = question.answers[i];
@@ -201,7 +177,6 @@ exports.create = (req, res) => {
     
   }
 
-  //let userId;
 
   User.create(user, {
     include: [
@@ -237,13 +212,14 @@ exports.create = (req, res) => {
   })
     .then(data => {
       res.send(data);
-      //userId = data.id;
+      return;
     })
     .catch(err => {
       res.status(500).send({
         message:
           err.message || "Some error occurred while creating the User."
       });
+      return;
     });
 });
 })});
@@ -254,7 +230,6 @@ exports.create = (req, res) => {
 exports.login = (req, res) => {
   const { errors, isValid } = loginator.validateLoginForm(req.body);
 
-  // check validation
   if(!isValid) {
     return res.status(400).json(errors);
   }
@@ -266,7 +241,6 @@ exports.login = (req, res) => {
   })
   .then(user => {
 
-    //check for user
     if (!user.length) {
       errors.login = 'User not found!';
       return res.status(404).json(errors);
@@ -274,16 +248,13 @@ exports.login = (req, res) => {
      
     let originalPassword = user[0].dataValues.hashPassword
 
-    //check for password
     bcrypt
       .compare(req.body.password, originalPassword)
       .then(isMatch => {
         if (isMatch) {
-          // user matched
           console.log('matched!')
           const { login } = user[0].dataValues;
-          const payload = { login }; //jwt payload
-          // console.log(payload)
+          const payload = { login }; 
 
           jwt.sign(payload, 'secret', { 
             expiresIn: 3600 
@@ -297,66 +268,9 @@ exports.login = (req, res) => {
           errors.password = 'Password not correct';
           return res.status(400).json(errors);
         }
-    }).catch(err => console.log(err));
-  }).catch(err => res.status(500).json({err}));
+    }).catch(err => {console.log(err); return});
+  }).catch(err => {return res.status(500).json({err})});
 };
-
-/*
-exports.findByLogin = async (req, res) => {
-  const login = req.params.login;
-
-  User.findOne({
-    where: {login : login}, 
-    attributes: {
-      exclude: ['hashPassword']
-    },
-    include: [
-      {
-      model: Quiz,
-      required: false,
-      include: [
-      {
-        model: Question, 
-        required: false,
-        include: [
-          {
-            model: Type, 
-            required: false
-          },
-          {
-            model: Answer, 
-            required: false
-          },
-          {
-            model: TextAnswer, 
-            required: false
-          }
-        ]
-      }, 
-      {
-        model: Image, 
-        required: false
-      }
-    ]
-  }
-    ]
-  })
-    .then(data => {
-      if (data) {
-        res.send(data);
-      } else {
-        res.status(404).send({
-          message: `Cannot find User`
-        });
-      }
-    })
-    .catch(err => {
-      res.status(500).send({
-        message: "Error retrieving User"
-      });
-    });
-}
-*/
 
 exports.findAuthenticated = async (req, res) => {
   const login = req.user.login;
@@ -400,47 +314,22 @@ exports.findAuthenticated = async (req, res) => {
     .then(data => {
       if (data) {
         res.send(data);
+        return;
       } else {
         res.status(404).send({
           message: `Cannot find User`
         });
+        return;
       }
     })
     .catch(err => {
       res.status(500).send({
         message: "Error retrieving User"
       });
+      return;
     });
 }
 
-//todo
-/*
-exports.updateByLogin = (req, res) => {
-  const login = req.params.login;
-
-  User.update(req.body, {
-    where: { login: login }
-  })
-    .then(num => {
-      if (num == 1) {
-        res.send({
-          message: "User was updated successfully."
-        });
-      } else {
-        res.send({
-          message: `Cannot update User`
-        });
-      }
-    })
-    .catch(err => {
-      res.status(500).send({
-        message: "Error updating User"
-      });
-    });
-}
-*/
-
-//todo
 exports.delete = (req, res) => {
   const login = req.user.login;
 
@@ -452,30 +341,18 @@ exports.delete = (req, res) => {
         res.send({
           message: "User was deleted successfully!"
         });
+        return;
       } else {
         res.send({
           message: `Cannot delete User`
         });
+        return;
       }
     })
     .catch(err => {
       res.status(500).send({
         message: "Could not delete User"
       });
+      return;
     });
 }
-
-/*
-exports.findAll = (req, res) => {
-  User.findAll()
-    .then(data => {
-      res.send(data);
-    })
-    .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while retrieving users."
-      });
-  });
-}
-*/

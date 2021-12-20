@@ -47,9 +47,11 @@ require("./serverApi/controllers/type.controller").create(
     }
   }, null);
 
-  require("./serverApi/controllers/type.controller").create(
-    {
-      body: {
-        name: "textanswer"
-      }
-    }, null);
+require("./serverApi/controllers/type.controller").create(
+  {
+    body: {
+    name: "textanswer"
+  }
+}, null);
+
+module.exports.app = app;

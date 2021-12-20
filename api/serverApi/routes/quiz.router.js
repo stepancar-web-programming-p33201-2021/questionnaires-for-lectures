@@ -43,7 +43,5 @@ module.exports = app => {
   }),
   quizzes.deleteById);
 
-  router.get("/quizzes", quizzes.findAllOfUser);
-
   app.use("/api", router);
 }

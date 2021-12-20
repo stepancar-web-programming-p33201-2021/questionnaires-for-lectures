@@ -11,10 +11,11 @@ const Op = db.Sequelize.Op;
 const N = 6;
 
 exports.create = (req, res) => {
-  if (!req.body) {
+  if (!req.body.name) {
     res.status(400).send({
-      message: "Content can not be empty!"
+      message: "name is required"
     });
+    return;
   }
 
   let code;
@@ -40,7 +41,6 @@ exports.create = (req, res) => {
 
   if (quiz.questions) {
     quiz.questions.forEach(e => {
-      //const typeFinder = Type.findOne({where: {name : e.type.toLowerCase()}});
 
       const type = e.type.toLowerCase();
 
@@ -48,6 +48,7 @@ exports.create = (req, res) => {
         res.status(404).send({
           message: `Cannot find Type.`
         });
+        return;
       }
 
       let question = {
@@ -64,6 +65,7 @@ exports.create = (req, res) => {
         res.status(400).send({
           message: `Answers are not allowed in this Type`
         });
+        return;
       }
     
       if (e.textAnswers && type == "textanswer") {
@@ -72,20 +74,12 @@ exports.create = (req, res) => {
         res.status(400).send({
           message: `TextAnswers are not allowed in this Type`
         });
+        return;
       }
 
       var answers = [];
 
       if (question.answers) {
-        /*
-        question.answers.forEach(e2 => answers.push({
-          text: e2.text,
-          indexInsideTheQuestion: e2.indexInsideTheQuestion,
-          numberOfVoters: e2.numberOfVoters ? e2.numberOfVoters : 0,
-          isRight: e2.isRight ? e2.isRight : false,
-          questionId: e2.questionId
-        }));
-        */
 
         for (var i = 0; i < question.answers.length; i++) {
           var e2 = question.answers[i];
@@ -161,13 +155,14 @@ exports.create = (req, res) => {
   })
     .then(data => {
       res.send(data);
-      //quizId = data.id;
+      return;
     })
     .catch(err => {
       res.status(500).send({
         message:
           err.message || "Some error occurred while creating the Quiz."
       });
+      return;
     });
   });
 }
@@ -213,21 +208,25 @@ exports.findById = (req, res) => {
       if (data) {
         if (data.userLogin == req.user.login) {
           res.send(data);
+          return;
         } else {
           res.status(403).send({
             message: `Forbidden.`
           });
+          return;
         }
       } else {
         res.status(404).send({
           message: `Cannot find Quiz with id = ${id}.`
         });
+        return;
       }
     })
     .catch(err => {
       res.status(500).send({
         message: "Error retrieving Quiz with id = " + id
       });
+      return;
     });  
 }
 
@@ -276,49 +275,33 @@ exports.findByCode = (req, res) => {
         attributes: {
           exclude: ['id', 'quizId']
         }
-      }/*,
-      {
-        model: User, 
-        required: false,
-        attributes: {
-          exclude: ['hashPassword']
-        }
-      }*/
+      }
     ]
   })
     .then(data => {
       if (data) {
         if (data.isActive) {
           res.send(data);
+          return;
         } else {
           res.status(403).send({
             message: `Quiz with code ${code} is not active.`
           });
+          return;
         }
       } else {
         res.status(404).send({
           message: `Cannot find Quiz with code = ${code}.`
         });
+        return;
       }
     })
     .catch(err => {
       res.status(500).send({
         message: "Error retrieving Quiz with code = " + code
       });
+      return;
     });  
-}
-
-exports.findAllOfUser = (req, res) => {
-  Quiz.findAll({ where: {userLogin: req.user.login}, include: Question })
-    .then(data => {
-      res.send(data);
-    })
-    .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while retrieving quizzes."
-      });
-  });
 }
 
 exports.updateById = (req, res) => {
@@ -330,42 +313,49 @@ exports.updateById = (req, res) => {
     res.status(404).send({
       message: `Not Found`
     });
+    return;
   }
 
   if (quiz.userLogin != req.user.login) {
     res.status(403).send({
       message: `Forbidden`
     });
+    return;
   }
 
   if (req.body.userLogin && quiz.userLogin != req.body.userLogin) {
     res.status(400).send({
       message: `It is resticted to update userLogin`
     });
+    return;
   }
 
   if (req.body.id && quiz.id != req.body.id) {
     res.status(400).send({
       message: `It is resticted to update id`
     });
+    return;
   }
 
   if (req.body.code && quiz.code != req.body.code) {
     res.status(400).send({
       message: `It is resticted to update code`
     });
+    return;
   }
 
   if (req.body.images) {
     res.status(400).send({
       message: `It is resticted to update images`
     });
+    return;
   }
 
   if (req.body.questions) {
     res.status(400).send({
       message: `It is resticted to update questions`
     });
+    return;
   }
 
   quiz.update({
@@ -377,16 +367,19 @@ exports.updateById = (req, res) => {
         res.send({
           message: "Quiz was updated successfully."
         });
+        return;
       } else {
         res.send({
           message: `Cannot update Quiz with id = ${id}.`
         });
+        return;
       }
     })
     .catch(err => {
       res.status(500).send({
         message: "Error updating Quiz with id=" + id
       });
+      return;
     });
   })
 }
@@ -398,12 +391,14 @@ exports.activateById = (req, res) => {
       res.status(404).send({
         message: `Not Found`
       });
+      return;
     }
 
   if (quiz.userLogin != req.user.login) {
     res.status(403).send({
       message: `Forbidden`
     });
+    return;
   }
 
   quiz.update({
@@ -414,16 +409,19 @@ exports.activateById = (req, res) => {
         res.send({
           message: "Quiz was activated successfully."
         });
+        return;
       } else {
         res.send({
           message: `Cannot activate Quiz with id = ${id}. Maybe Quiz was not found`
         });
+        return;
       }
     })
     .catch(err => {
       res.status(500).send({
         message: "Error updating Quiz with id=" + id
       });
+      return;
     });
   });
 
@@ -436,12 +434,14 @@ exports.deactivateById = (req, res) => {
       res.status(404).send({
         message: `Not Found`
       });
+      return;
     }
     
   if (quiz.userLogin != req.user.login) {
     res.status(403).send({
       message: `Forbidden`
     });
+    return;
   }
 
   quiz.update({
@@ -452,16 +452,19 @@ exports.deactivateById = (req, res) => {
         res.send({
           message: "Quiz was deactivated successfully."
         });
+        return;
       } else {
         res.send({
           message: `Cannot deactivate Quiz with id = ${id}. Maybe Quiz was not found`
         });
+        return;
       }
     })
     .catch(err => {
       res.status(500).send({
         message: "Error updating Quiz with id=" + id
       });
+      return;
     });
   });
 }
@@ -477,12 +480,14 @@ exports.deleteById = (req, res) => {
     res.status(404).send({
       message: `Not Found`
     });
+    return;
   }
 
   if (quiz.userLogin != req.user.login) {
     res.status(403).send({
       message: `Forbidden`
     });
+    return;
   }
 
   Quiz.destroy({
@@ -493,16 +498,19 @@ exports.deleteById = (req, res) => {
         res.send({
           message: "Quiz was deleted successfully!"
         });
+        return;
       } else {
         res.send({
           message: `Cannot delete Quiz with id=${id}. Maybe Quiz was not found!`
         });
+        return;
       }
     })
     .catch(err => {
       res.status(500).send({
         message: "Could not delete Quiz with id=" + id
       });
+      return;
     });
   });
 }

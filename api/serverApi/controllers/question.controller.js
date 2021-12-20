@@ -8,12 +8,33 @@ const Quiz = db.quizzes;
 const Op = db.Sequelize.Op;
 
 exports.create = (req, res) => {
-  console.log("Posting question");
-  console.log(req.body);
-  if (!req.body) {
+  
+  if (!req.body.text) {
     res.status(400).send({
-      message: "Content can not be empty!"
+      message: "text is required"
     });
+    return;
+  }
+
+  if (!req.body.indexInsideTheQuiz) {
+    res.status(400).send({
+      message: "indexInsideTheQuiz is required"
+    });
+    return;
+  }
+
+  if (!req.body.type) {
+    res.status(400).send({
+      message: "type is required"
+    });
+    return;
+  }
+
+  if (!req.body.quizId) {
+    res.status(400).send({
+      message: "quizId is required"
+    });
+    return;
   }
 
   const type = req.body.type.toLowerCase();
@@ -24,6 +45,7 @@ exports.create = (req, res) => {
     res.status(404).send({
       message: `Cannot find Type.`
     });
+    return;
   }
 
   let question = {
@@ -40,12 +62,14 @@ exports.create = (req, res) => {
     res.status(404).send({
       message: "Not Found Quiz for this QuizId"
     });
+    return;
   }
 
   if (quiz.userLogin != req.user.login) {
     res.status(403).send({
       message: `Forbidden`
     });
+    return;
   }
 
   if (req.body.answers && type == "answer") {
@@ -54,6 +78,7 @@ exports.create = (req, res) => {
     res.status(400).send({
       message: `Answers are not allowed in this Type`
     });
+    return;
   }
 
   if (req.body.textAnswers && type == "textanswer") {
@@ -62,6 +87,7 @@ exports.create = (req, res) => {
     res.status(400).send({
       message: `TextAnswers are not allowed in this Type`
     });
+    return;
   }
 
   var answers = [];
@@ -106,12 +132,14 @@ exports.create = (req, res) => {
   ]})
     .then(data => {
       res.send(data);
+      return;
     })
     .catch(err => {
       res.status(500).send({
         message:
           err.message || "Some error occurred while creating the Question."
       });
+      return;
     });
 });
 });
@@ -156,19 +184,23 @@ exports.findById = (req, res) => {
           res.status(403).send({
             message: `Forbidden`
           });
+          return;
         }
 
         res.send(data);
+        return;
       } else {
         res.status(404).send({
           message: "Not found"
         });
+        return;
       }
     })
     .catch(err => {
       res.status(500).send({
         message: "Error retrieving Question with id=" + id
       });
+      return;
     });  
 }
 
@@ -181,6 +213,7 @@ exports.updateById = (req, res) => {
     res.status(404).send({
       message: `Not Found`
     });
+    return;
   }
 
   Quiz.findByPk(question.quizId).then(quiz => {
@@ -189,36 +222,42 @@ exports.updateById = (req, res) => {
     res.status(403).send({
       message: `Forbidden`
     });
+    return;
   }
 
   if (req.body.type && !(question.typeId == 1 && req.body.type == "answer" || question.typeId == 2 && req.body.type == "textanswer")) {
     res.status(400).send({
       message: `It is resticted to update type`
     });
+    return;
   }
 
   if (req.body.quizId && question.quizId != req.body.quizId) {
     res.status(400).send({
       message: `It is resticted to update quizId`
     });
+    return;
   }
 
   if (req.body.id && question.quizId != req.body.id) {
     res.status(400).send({
       message: `It is resticted to update id`
     });
+    return;
   }
 
   if (req.body.answers) {
     res.status(400).send({
       message: `It is resticted to update answers`
     });
+    return;
   }
 
   if (req.body.textAnswers) {
     res.status(400).send({
       message: `It is resticted to update textAnswers`
     });
+    return;
   }
 
   question.update({
@@ -232,16 +271,19 @@ exports.updateById = (req, res) => {
         res.send({
           message: "Question was updated successfully."
         });
+        return;
       } else {
         res.send({
           message: `Cannot update Question with id=${id}. Maybe Question was not found or req.body is empty!`
         });
+        return;
       }
     })
     .catch(err => {
       res.status(500).send({
         message: "Error updating Question with id=" + id
       });
+      return;
     });
     });
     })
@@ -256,6 +298,7 @@ exports.deleteById = (req, res) => {
     res.status(404).send({
       message: `Not Found`
     });
+    return;
   }
 
   Quiz.findOne({
@@ -266,6 +309,7 @@ exports.deleteById = (req, res) => {
     res.status(403).send({
       message: `Forbidden`
     });
+    return;
   }
 
   Question.destroy({
@@ -276,16 +320,19 @@ exports.deleteById = (req, res) => {
         res.send({
           message: "Question was deleted successfully!"
         });
+        return;
       } else {
         res.send({
           message: `Cannot delete Question with id=${id}. Maybe Question was not found!`
         });
+        return;
       }
     })
     .catch(err => {
       res.status(500).send({
         message: "Could not delete Question with id=" + id
       });
+      return;
     });
   });
 });
