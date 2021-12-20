@@ -9,6 +9,7 @@ const Op = db.Sequelize.Op;
 
 exports.create = (req, res) => {
   console.log("Posting question");
+  console.log(req.body);
   if (!req.body) {
     res.status(400).send({
       message: "Content can not be empty!"
@@ -32,6 +33,20 @@ exports.create = (req, res) => {
     totalVoters: req.body.totalVoters ? req.body.totalVoters : 0,
     quizId: req.body.quizId,
   };
+
+  Quiz.findOne({where: {id : req.body.quizId}}).then(quiz => {
+
+  if (!quiz) {
+    res.status(404).send({
+      message: "Not Found Quiz for this QuizId"
+    });
+  }
+
+  if (quiz.userLogin != req.user.login) {
+    res.status(403).send({
+      message: `Forbidden`
+    });
+  }
 
   if (req.body.answers && type == "answer") {
     question.answers = req.body.answers;
@@ -63,15 +78,6 @@ exports.create = (req, res) => {
         questionId: e.questionId
       })
     }
-    /*
-    question.answers.forEach(e => answers.push({
-      text: e.text,
-      indexInsideTheQuestion: e.indexInsideTheQuestion,
-      numberOfVoters: e.numberOfVoters ? e.numberOfVoters : 0,
-      isRight: e.isRight ? e.isRight : false,
-      questionId: e.questionId
-    }));
-    */
 
     question.answers = answers;
   }
@@ -107,33 +113,7 @@ exports.create = (req, res) => {
           err.message || "Some error occurred while creating the Question."
       });
     });
-
-  
-  /*if (req.body.type.toLowerCase() == "answer") {
-    if (req.body.textAnswers) {
-      res.status(400).send({
-        message: "type is answer, why are there textAnswers?"
-      });
-    } else if (req.body.answers)
-      req.body.questions.forEach(element => {
-        element["questionId"] = questionFinder.id;
-        const reqElement = {body : element};
-        answerController.create(reqElement, res);
-    });  
-  } 
-
-  if (req.body.type.toLowerCase() == "textanswer") {
-    if (req.body.answers) {
-      res.status(400).send({
-        message: "type is textAnswer, why are there answers?"
-      });
-    } else if (req.body.textAnswers)
-      req.body.questions.forEach(element => {
-        element["questionId"] = questionFinder.id;
-        const reqElement = {body : element};
-        textAnswerController.create(reqElement, res);
-    });  
-  } */
+});
 });
 }
 
@@ -172,10 +152,16 @@ exports.findById = (req, res) => {
   })
     .then(data => {
       if (data) {
+        if (data.quiz.userLogin != req.user.login) {
+          res.status(403).send({
+            message: `Forbidden`
+          });
+        }
+
         res.send(data);
       } else {
         res.status(404).send({
-          message: `Cannot find Question with id=${id}.`
+          message: "Not found"
         });
       }
     })
@@ -191,9 +177,21 @@ exports.updateById = (req, res) => {
   
   Question.findByPk(id).then(question => {
 
-  const type = req.body.type.toLowerCase();
+  if (!question) {
+    res.status(404).send({
+      message: `Not Found`
+    });
+  }
 
-  if (type && !(question.typeId == 1 && req.body.type == "answer" || question.typeId == 2 && req.body.type == "textanswer")) {
+  Quiz.findByPk(question.quizId).then(quiz => {
+
+  if (quiz.userLogin != req.user.login) {
+    res.status(403).send({
+      message: `Forbidden`
+    });
+  }
+
+  if (req.body.type && !(question.typeId == 1 && req.body.type == "answer" || question.typeId == 2 && req.body.type == "textanswer")) {
     res.status(400).send({
       message: `It is resticted to update type`
     });
@@ -205,11 +203,32 @@ exports.updateById = (req, res) => {
     });
   }
 
-  Question.update(req.body, {
-    where: { id: id }
+  if (req.body.id && question.quizId != req.body.id) {
+    res.status(400).send({
+      message: `It is resticted to update id`
+    });
+  }
+
+  if (req.body.answers) {
+    res.status(400).send({
+      message: `It is resticted to update answers`
+    });
+  }
+
+  if (req.body.textAnswers) {
+    res.status(400).send({
+      message: `It is resticted to update textAnswers`
+    });
+  }
+
+  question.update({
+    text: req.body.text ? req.body.text : question.text,
+    type: req.body.type ? req.body.type : question.type,
+    indexInsideTheQuiz: req.body.indexInsideTheQuiz ? req.body.indexInsideTheQuiz : question.indexInsideTheQuiz,
+    totalVoters: req.body.totalVoters ? req.body.totalVoters : question.totalVoters
   })
     .then(num => {
-      if (num == 1) {
+      if (num) {
         res.send({
           message: "Question was updated successfully."
         });
@@ -224,17 +243,36 @@ exports.updateById = (req, res) => {
         message: "Error updating Question with id=" + id
       });
     });
+    });
     })
 }
 
 exports.deleteById = (req, res) => {
   const id = req.params.id;
 
+  Question.findByPk(id).then(question => {
+
+  if (!question) {
+    res.status(404).send({
+      message: `Not Found`
+    });
+  }
+
+  Quiz.findOne({
+    where: { id: question.quizId }
+  }).then(quiz => {
+    
+  if (quiz.userLogin != req.user.login) {
+    res.status(403).send({
+      message: `Forbidden`
+    });
+  }
+
   Question.destroy({
     where: { id: id }
   })
     .then(num => {
-      if (num == 1) {
+      if (num) {
         res.send({
           message: "Question was deleted successfully!"
         });
@@ -249,4 +287,6 @@ exports.deleteById = (req, res) => {
         message: "Could not delete Question with id=" + id
       });
     });
+  });
+});
 }

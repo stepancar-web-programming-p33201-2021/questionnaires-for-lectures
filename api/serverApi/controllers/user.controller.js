@@ -448,7 +448,7 @@ exports.delete = (req, res) => {
     where: { login: login }
   })
     .then(num => {
-      if (num == 1) {
+      if (num) {
         res.send({
           message: "User was deleted successfully!"
         });

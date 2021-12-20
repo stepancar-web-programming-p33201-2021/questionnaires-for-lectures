@@ -21,10 +21,14 @@ module.exports = (sequelize, Sequelize) => {
     hooks: {
       afterCreate: (record) => {
           delete record.dataValues.hashPassword;
+          delete record.dataValues.createdAt;
+          delete record.dataValues.updatedAt;
       },
       afterUpdate: (record) => {
           delete record.dataValues.hashPassword;
-      },
+          delete record.dataValues.createdAt;
+          delete record.dataValues.updatedAt;
+      }
   }
   });
 

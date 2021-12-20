@@ -35,6 +35,11 @@ require("./serverApi/routes/user.router")(app);
 require("./serverApi/routes/type.router")(app);
 require('./serverApi/config/passport.js')(passport, db.users);
 
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}.`);
+});
+
 require("./serverApi/controllers/type.controller").create(
   {
     body: {
@@ -48,9 +53,3 @@ require("./serverApi/controllers/type.controller").create(
         name: "textanswer"
       }
     }, null);
-
-
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}.`);
-});

@@ -236,36 +236,54 @@ exports.findByCode = (req, res) => {
 
   Quiz.findOne({
     where: {code : code}, 
+    attributes: {
+      exclude: ['id']
+    },
     include: [
       {
         model: Question, 
         required: false,
+        attributes: {
+          exclude: ['id', 'quizId', 'typeId']
+        },
         include: [
           {
             model: Type, 
-            required: false
+            required: false,
+            attributes: {
+              exclude: ['id']
+            }
           },
           {
             model: Answer, 
-            required: false
+            required: false,
+            attributes: {
+              exclude: ['id', 'questionId']
+            }
           },
           {
             model: TextAnswer, 
-            required: false
+            required: false,
+            attributes: {
+              exclude: ['id', 'questionId']
+            }
           }
         ]
       }, 
       {
         model: Image, 
-        required: false
-      },
+        required: false,
+        attributes: {
+          exclude: ['id', 'quizId']
+        }
+      }/*,
       {
         model: User, 
         required: false,
         attributes: {
           exclude: ['hashPassword']
         }
-      }
+      }*/
     ]
   })
     .then(data => {
@@ -308,6 +326,12 @@ exports.updateById = (req, res) => {
 
   Quiz.findOne({where: {id: id}}).then(quiz => {
 
+  if (!quiz) {
+    res.status(404).send({
+      message: `Not Found`
+    });
+  }
+
   if (quiz.userLogin != req.user.login) {
     res.status(403).send({
       message: `Forbidden`
@@ -332,6 +356,18 @@ exports.updateById = (req, res) => {
     });
   }
 
+  if (req.body.images) {
+    res.status(400).send({
+      message: `It is resticted to update images`
+    });
+  }
+
+  if (req.body.questions) {
+    res.status(400).send({
+      message: `It is resticted to update questions`
+    });
+  }
+
   quiz.update({
     name: req.body.name ? req.body.name : quiz.name,
     isActive: req.body.isActive ? req.body.isActive : quiz.isActive
@@ -343,7 +379,7 @@ exports.updateById = (req, res) => {
         });
       } else {
         res.send({
-          message: `Cannot update Quiz with id = ${id}. Maybe Quiz was not found`
+          message: `Cannot update Quiz with id = ${id}.`
         });
       }
     })
@@ -358,6 +394,12 @@ exports.updateById = (req, res) => {
 exports.activateById = (req, res) => {
   const id = req.params.id;
   Quiz.findOne({where: {id : id}}).then(quiz => {
+    if (!quiz) {
+      res.status(404).send({
+        message: `Not Found`
+      });
+    }
+
   if (quiz.userLogin != req.user.login) {
     res.status(403).send({
       message: `Forbidden`
@@ -390,6 +432,12 @@ exports.activateById = (req, res) => {
 exports.deactivateById = (req, res) => {
   const id = req.params.id;
   Quiz.findOne({where: {id : id}}).then(quiz => {
+    if (!quiz) {
+      res.status(404).send({
+        message: `Not Found`
+      });
+    }
+    
   if (quiz.userLogin != req.user.login) {
     res.status(403).send({
       message: `Forbidden`
@@ -424,6 +472,13 @@ exports.deleteById = (req, res) => {
   Quiz.findOne({
     where: { id: id }
   }).then(quiz => {
+
+  if (!quiz) {
+    res.status(404).send({
+      message: `Not Found`
+    });
+  }
+
   if (quiz.userLogin != req.user.login) {
     res.status(403).send({
       message: `Forbidden`
@@ -434,7 +489,7 @@ exports.deleteById = (req, res) => {
     where: { id: id }
   })
     .then(num => {
-      if (num == 1) {
+      if (num) {
         res.send({
           message: "Quiz was deleted successfully!"
         });

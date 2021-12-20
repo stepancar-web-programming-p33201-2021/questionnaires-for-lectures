@@ -24,24 +24,18 @@ module.exports = (sequelize, Sequelize) => {
            type: Sequelize.BOOLEAN,
            defaultValue: false
         }
+    }, {
+      hooks: {
+        afterCreate: (record) => {
+            delete record.dataValues.createdAt;
+            delete record.dataValues.updatedAt;
+        },
+        afterUpdate: (record) => {
+            delete record.dataValues.createdAt;
+            delete record.dataValues.updatedAt;
+        }
+    }
     });
 
-    /*
-    Quiz.belongsTo(User);
-
-    Quiz.hasMany(Image, 
-      {
-          foreignKey: 'quizId',
-          onDelete: 'CASCADE'
-      }
-    );
-
-    Quiz.hasMany(Question, 
-      {
-          foreignKey: 'quizId',
-          onDelete: 'CASCADE'
-      }
-    );
-    */
     return Quiz;
 }

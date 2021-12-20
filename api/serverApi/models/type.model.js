@@ -13,6 +13,17 @@ module.exports = (sequelize, Sequelize) => {
         allowNull: false,
         unique: true
       }
+  }, {
+    hooks: {
+      afterCreate: (record) => {
+          delete record.dataValues.createdAt;
+          delete record.dataValues.updatedAt;
+      },
+      afterUpdate: (record) => {
+          delete record.dataValues.createdAt;
+          delete record.dataValues.updatedAt;
+      }
+  }
   });
 
   /*

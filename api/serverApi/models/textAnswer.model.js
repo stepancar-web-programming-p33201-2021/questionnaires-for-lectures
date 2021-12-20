@@ -16,6 +16,17 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.INTEGER,
         defaultValue: 0
       }
+  }, {
+    hooks: {
+      afterCreate: (record) => {
+          delete record.dataValues.createdAt;
+          delete record.dataValues.updatedAt;
+      },
+      afterUpdate: (record) => {
+          delete record.dataValues.createdAt;
+          delete record.dataValues.updatedAt;
+      }
+  }
   });
   
 //  TextAnswer.belongsTo(Question);

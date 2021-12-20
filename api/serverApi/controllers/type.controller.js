@@ -5,26 +5,24 @@ const Op = db.Sequelize.Op;
 exports.create = (req, res) => {
   console.log("Posting Type");
   if (!req.body) {
-    res.status(400).send({
-      message: "Content can not be empty!"
-    });
+    console.log("No bodies for types");
   }
 
   let type = {
     name: req.body.name
   };
 
+  console.log(type);
+
   Type.create(type)
-    .then(data => {
-      res.send(data);
-    })
+    //.then(data => {
+    //  res.send(data);
+    //})
     .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while creating the Type."
-      });
+        console.log("Some error occurred while creating the Type.");
     });
 }
+
 
 exports.findById = (req, res) => {
   const id = req.params.id;
@@ -44,65 +42,4 @@ exports.findById = (req, res) => {
         message: "Error retrieving Type with id=" + id
       });
     });  
-}
-
-exports.updateById = (req, res) => {
-  const id = req.params.id;
-
-  Type.update(req.body, {
-    where: { id: id }
-  })
-    .then(num => {
-      if (num == 1) {
-        res.send({
-          message: "Type was updated successfully."
-        });
-      } else {
-        res.send({
-          message: `Cannot update Type with id=${id}. Maybe Type was not found or req.body is empty!`
-        });
-      }
-    })
-    .catch(err => {
-      res.status(500).send({
-        message: "Error updating Type with id=" + id
-      });
-    });
-}
-
-exports.deleteById = (req, res) => {
-  const id = req.params.id;
-
-  Type.destroy({
-    where: { id: id }
-  })
-    .then(num => {
-      if (num == 1) {
-        res.send({
-          message: "Type was deleted successfully!"
-        });
-      } else {
-        res.send({
-          message: `Cannot delete Type with id=${id}. Maybe Type was not found!`
-        });
-      }
-    })
-    .catch(err => {
-      res.status(500).send({
-        message: "Could not delete Type with id=" + id
-      });
-    });
-}
-
-exports.findAll = (req, res) => {
-  Type.findAll()
-    .then(data => {
-      res.send(data);
-    })
-    .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while retrieving types."
-      });
-  });
 }

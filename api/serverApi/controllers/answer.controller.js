@@ -22,6 +22,20 @@ exports.create = (req, res) => {
     questionId: req.body.questionId
   };
 
+  Question.findOne({where: {id : req.body.questionId}}).then(question => {
+    if (!question) {
+      res.status(404).send({
+        message: "Not Found Question for this QuestionId"
+      });
+    }
+
+    Quiz.findOne({where: {id : question.quizId}}).then(quiz => {
+      if (quiz.userLogin != req.user.login) {
+        res.status(403).send({
+          message: `Forbidden`
+        });
+      }
+
   Answer.create(answer)
     .then(data => {
       res.send(data);
@@ -32,6 +46,8 @@ exports.create = (req, res) => {
           err.message || "Some error occurred while creating the Answer."
       });
     });
+  });
+});
 }
 
 exports.findById = (req, res) => {
@@ -58,10 +74,16 @@ exports.findById = (req, res) => {
   })
     .then(data => {
       if (data) {
+        if (data.question.quiz.userLogin != req.user.login) {
+          res.status(403).send({
+            message: `Forbidden`
+          });
+        }
+
         res.send(data);
       } else {
         res.status(404).send({
-          message: `Cannot find Answer with id=${id}.`
+          message: "Not found"
         });
       }
     })
@@ -75,7 +97,21 @@ exports.findById = (req, res) => {
 exports.updateById = (req, res) => {
   const id = req.params.id;
 
-  const answer = Answer.findByPk(id);
+  Answer.findByPk(id).then(answer => {
+
+    if (!answer) {
+      res.status(404).send({
+        message: `Not Found`
+      });
+    }
+  
+    Question.findByPk(answer.questionId).then(question => {
+      Quiz.findByPk(question.quizId).then(quiz => {
+    if (quiz.userLogin != req.user.login) {
+      res.status(403).send({
+        message: `Forbidden`
+      });
+    }
 
   if (req.body.questionId && answer.questionId != req.body.questionId) {
     res.status(400).send({
@@ -83,17 +119,26 @@ exports.updateById = (req, res) => {
     });
   }
 
-  Answer.update(req.body, {
-    where: { id: id }
+  if (req.body.id && answer.id != req.body.id) {
+    res.status(400).send({
+      message: `It is resticted to update id`
+    });
+  }
+
+  answer.update({
+    isRight: req.body.isRight ? req.body.isRight : answer.isRight,
+    text: req.body.text ? req.body.text : answer.text,
+    numberOfVoters: req.body.numberOfVoters ? req.body.numberOfVoters : answer.numberOfVoters,
+    indexInsideTheQuestion: req.body.indexInsideTheQuestion ? req.body.indexInsideTheQuestion : answer.indexInsideTheQuestion
   })
     .then(num => {
-      if (num == 1) {
+      if (num) {
         res.send({
           message: "Answer was updated successfully."
         });
       } else {
         res.send({
-          message: `Cannot update Answer with id=${id}. Maybe Answer was not found or req.body is empty!`
+          message: `Cannot update Answer with id=${id}.`
         });
       }
     })
@@ -102,10 +147,31 @@ exports.updateById = (req, res) => {
         message: "Error updating Answer with id=" + id
       });
     });
+  });
+  });
+  });
 }
 
 exports.deleteById = (req, res) => {
   const id = req.params.id;
+
+  Answer.findByPk(id).then(answer => {
+
+    if (!answer) {
+      res.status(404).send({
+        message: `Not Found`
+      });
+    }
+  
+    Question.findByPk(answer.questionId).then(question => {
+      Quiz.findByPk(question.quizId).then(quiz => {
+      
+    if (quiz.userLogin != req.user.login) {
+      res.status(403).send({
+        message: `Forbidden`
+      });
+    }
+
 
   Answer.destroy({
     where: { id: id }
@@ -126,4 +192,7 @@ exports.deleteById = (req, res) => {
         message: "Could not delete Answer with id=" + id
       });
     });
+  });
+});
+  });
 }
