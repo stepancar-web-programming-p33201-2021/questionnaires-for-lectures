@@ -1,17 +1,56 @@
 const express = require('express')
 const cors = require('cors')
-const app = express()
 const passport = require('passport')
 const bodyParser = require('body-parser')
+const swaggerUI = require("swagger-ui-express");
+const swaggerJsDoc = require("swagger-jsdoc");
 
 const corsOptions = {
   origin: 'http://localhost:8081'
 }
 
+const options = {
+	definition: {
+		openapi: "3.0.0",
+		info: {
+			title: "WebQuizzes API",
+			version: "1.0.0",
+			description: "WebQuizzes API",
+		},
+		servers: [
+			{
+				url: "http://localhost:8080/api",
+			},
+		]
+	},
+	
+	components: {
+		securitySchemes: {
+		  jwt: {
+			type: "http",
+			scheme: "bearer",
+			in: "header",
+			bearerFormat: "JWT"
+		  },
+		}
+	  }
+	  ,
+	  security: [{
+		jwt: []
+	  }],
+
+	swagger: "2.0",
+
+	apis: ["./ServerApi/routes/*.js"],
+};
+
+const specs = swaggerJsDoc(options);
+
+const app = express()
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(specs));
 app.use(cors(corsOptions))
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
-
 app.set('view engine', 'ejs')
 app.use(express.static(__dirname + '/public'))
 

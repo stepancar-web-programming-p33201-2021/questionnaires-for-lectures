@@ -121,11 +121,17 @@ exports.create = (req, res) => {
         include: [
           {
             model: Answer,
-            required: false
+            required: false,
+            attributes: {
+              exclude: ['createdAt', 'updatedAt']
+            }
           },
           {
             model: TextAnswer,
-            required: false
+            required: false,
+            attributes: {
+              exclude: ['createdAt', 'updatedAt']
+            }
           }
         ]
       })
@@ -147,28 +153,43 @@ exports.findById = (req, res) => {
 
   Question.findOne({
     where: { id: id },
+    attributes: {
+      exclude: ['createdAt', 'updatedAt']
+    },
     include: [
       {
         model: Type,
-        required: false
+        required: false,
+        attributes: {
+          exclude: ['createdAt', 'updatedAt']
+        }
       },
       {
         model: Answer,
-        required: false
+        required: false,
+        attributes: {
+          exclude: ['createdAt', 'updatedAt']
+        }
       },
       {
         model: TextAnswer,
-        required: false
+        required: false,
+        attributes: {
+          exclude: ['createdAt', 'updatedAt']
+        }
       },
       {
         model: Quiz,
         required: false,
+        attributes: {
+          exclude: ['createdAt', 'updatedAt']
+        },
         include: [
           {
             model: User,
             required: false,
             attributes: {
-              exclude: ['hashPassword']
+              exclude: ['hashPassword', 'createdAt', 'updatedAt']
             }
           }
         ]

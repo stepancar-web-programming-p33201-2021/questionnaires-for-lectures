@@ -65,16 +65,22 @@ exports.findById = (req, res) => {
 
   Image.findOne({
     where: { id: id },
+    attributes: {
+      exclude: ['createdAt', 'updatedAt']
+    },
     include: [
       {
         model: Quiz,
         required: false,
+        attributes: {
+          exclude: ['createdAt', 'updatedAt']
+        },
         include: [
           {
             model: User,
             required: false,
             attributes: {
-              exclude: ['hashPassword']
+              exclude: ['hashPassword', 'createdAt', 'updatedAt']
             }
           }
         ]

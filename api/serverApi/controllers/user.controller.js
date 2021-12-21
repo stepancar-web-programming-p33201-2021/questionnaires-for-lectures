@@ -175,28 +175,46 @@ exports.create = (req, res) => {
                       {
                         model: Quiz,
                         required: false,
+                        attributes: {
+                          exclude: ['createdAt', 'updatedAt']
+                        },
                         include: [
                           {
                             model: Question,
                             required: false,
+                            attributes: {
+                              exclude: ['createdAt', 'updatedAt']
+                            },
                             include: [
                               {
                                 model: Type,
-                                required: false
+                                required: false,
+                                attributes: {
+                                  exclude: ['createdAt', 'updatedAt']
+                                }
                               },
                               {
                                 model: Answer,
-                                required: false
+                                required: false,
+                                attributes: {
+                                  exclude: ['createdAt', 'updatedAt']
+                                }
                               },
                               {
                                 model: TextAnswer,
-                                required: false
+                                required: false,
+                                attributes: {
+                                  exclude: ['createdAt', 'updatedAt']
+                                }
                               }
                             ]
                           },
                           {
                             model: Image,
-                            required: false
+                            required: false,
+                            attributes: {
+                              exclude: ['createdAt', 'updatedAt']
+                            }
                           }
                         ]
                       }
@@ -208,7 +226,7 @@ exports.create = (req, res) => {
                     .catch(err => {
                       res.status(500).send({
                         message:
-          err.message || 'Some error occurred while creating the User.'
+                        err.message || 'Some error occurred while creating the User.'
                       })
                     })
                 })
@@ -276,28 +294,46 @@ exports.findAuthenticated = async (req, res) => {
       {
         model: Quiz,
         required: false,
+        attributes: {
+          exclude: ['createdAt', 'updatedAt']
+        },
         include: [
           {
             model: Question,
             required: false,
+            attributes: {
+              exclude: ['createdAt', 'updatedAt']
+            },
             include: [
               {
                 model: Type,
-                required: false
+                required: false,
+                attributes: {
+                  exclude: ['createdAt', 'updatedAt']
+                }
               },
               {
                 model: Answer,
-                required: false
+                required: false,
+                attributes: {
+                  exclude: ['createdAt', 'updatedAt']
+                }
               },
               {
                 model: TextAnswer,
-                required: false
+                required: false,
+                attributes: {
+                  exclude: ['createdAt', 'updatedAt']
+                }
               }
             ]
           },
           {
             model: Image,
-            required: false
+            required: false,
+            attributes: {
+              exclude: ['createdAt', 'updatedAt']
+            }
           }
         ]
       }

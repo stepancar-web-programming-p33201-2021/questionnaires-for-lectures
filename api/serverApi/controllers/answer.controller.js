@@ -77,19 +77,28 @@ exports.findById = (req, res) => {
 
   Answer.findOne({
     where: { id: id },
+    attributes: {
+      exclude: ['createdAt', 'updatedAt']
+    },
     include: [{
       model: Question,
       required: false,
+      attributes: {
+        exclude: ['createdAt', 'updatedAt']
+      },
       include: [
         {
           model: Quiz,
           required: false,
+          attributes: {
+            exclude: ['createdAt', 'updatedAt']
+          },
           include: [
             {
               model: User,
               required: false,
               attributes: {
-                exclude: ['hashPassword']
+                exclude: ['hashPassword', 'createdAt', 'updatedAt']
               }
             }
           ]

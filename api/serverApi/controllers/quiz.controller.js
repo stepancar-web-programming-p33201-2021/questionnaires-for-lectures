@@ -129,24 +129,39 @@ exports.create = (req, res) => {
         {
           model: Question,
           required: false,
+          attributes: {
+            exclude: ['createdAt', 'updatedAt']
+          },
           include: [
             {
               model: Type,
-              required: false
+              required: false,
+              attributes: {
+                exclude: ['createdAt', 'updatedAt']
+              }
             },
             {
               model: Answer,
-              required: false
+              required: false,
+              attributes: {
+                exclude: ['createdAt', 'updatedAt']
+              }
             },
             {
               model: TextAnswer,
-              required: false
+              required: false,
+              attributes: {
+                exclude: ['createdAt', 'updatedAt']
+              }
             }
           ]
         },
         {
           model: Image,
-          required: false
+          required: false,
+          attributes: {
+            exclude: ['createdAt', 'updatedAt']
+          }
         }
       ]
     })
@@ -167,34 +182,52 @@ exports.findById = (req, res) => {
 
   Quiz.findOne({
     where: { id: id },
+    attributes: {
+      exclude: ['createdAt', 'updatedAt']
+    },
     include: [
       {
         model: Question,
         required: false,
+        attributes: {
+          exclude: ['createdAt', 'updatedAt']
+        },
         include: [
           {
             model: Type,
-            required: false
+            required: false,
+            attributes: {
+              exclude: ['createdAt', 'updatedAt']
+            }
           },
           {
             model: Answer,
-            required: false
+            required: false,
+            attributes: {
+              exclude: ['createdAt', 'updatedAt']
+            }
           },
           {
             model: TextAnswer,
-            required: false
+            required: false,
+            attributes: {
+              exclude: ['createdAt', 'updatedAt']
+            }
           }
         ]
       },
       {
         model: Image,
-        required: false
+        required: false,
+        attributes: {
+          exclude: ['createdAt', 'updatedAt']
+        }
       },
       {
         model: User,
         required: false,
         attributes: {
-          exclude: ['hashPassword']
+          exclude: ['hashPassword', 'createdAt', 'updatedAt']
         }
       }
     ]
@@ -227,35 +260,35 @@ exports.findByCode = (req, res) => {
   Quiz.findOne({
     where: { code: code },
     attributes: {
-      exclude: ['id']
+      exclude: ['id', 'createdAt', 'updatedAt']
     },
     include: [
       {
         model: Question,
         required: false,
         attributes: {
-          exclude: ['id', 'quizId', 'typeId']
+          exclude: ['id', 'quizId', 'typeId', 'createdAt', 'updatedAt']
         },
         include: [
           {
             model: Type,
             required: false,
             attributes: {
-              exclude: ['id']
+              exclude: ['id', 'createdAt', 'updatedAt']
             }
           },
           {
             model: Answer,
             required: false,
             attributes: {
-              exclude: ['id', 'questionId']
+              exclude: ['id', 'questionId', 'createdAt', 'updatedAt']
             }
           },
           {
             model: TextAnswer,
             required: false,
             attributes: {
-              exclude: ['id', 'questionId']
+              exclude: ['id', 'questionId', 'createdAt', 'updatedAt']
             }
           }
         ]
@@ -264,7 +297,7 @@ exports.findByCode = (req, res) => {
         model: Image,
         required: false,
         attributes: {
-          exclude: ['id', 'quizId']
+          exclude: ['id', 'quizId', 'createdAt', 'updatedAt']
         }
       }
     ]

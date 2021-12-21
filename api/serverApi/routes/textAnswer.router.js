@@ -11,6 +11,12 @@ module.exports = app => {
     }),
     textAnswers.findById)
 
+  router.get('/textAnswers/find/userText',
+    passport.authenticate('jwt', {
+      session: false
+    }),
+    textAnswers.findByUserText)  
+
   router.post('/textAnswers',
     passport.authenticate('jwt', {
       session: false

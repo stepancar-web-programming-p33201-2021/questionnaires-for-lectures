@@ -68,19 +68,28 @@ exports.findById = (req, res) => {
 
   TextAnswer.findOne({
     where: { id: id },
+    attributes: {
+      exclude: ['createdAt', 'updatedAt']
+    },
     include: [{
       model: Question,
       required: false,
+      attributes: {
+        exclude: ['createdAt', 'updatedAt']
+      },
       include: [
         {
           model: Quiz,
           required: false,
+          attributes: {
+            exclude: ['createdAt', 'updatedAt']
+          },
           include: [
             {
               model: User,
               required: false,
               attributes: {
-                exclude: ['hashPassword']
+                exclude: ['hashPassword', 'createdAt', 'updatedAt']
               }
             }
           ]
@@ -130,17 +139,29 @@ exports.findByUserText = (req, res) => {
 
   TextAnswer.findOne({
     where: { userText: userText, questionId: req.body.questionId },
+    attributes: {
+      exclude: ['createdAt', 'updatedAt']
+    },
     include: [{
       model: Question,
       required: false,
+      attributes: {
+        exclude: ['createdAt', 'updatedAt']
+      },
       include: [
         {
           model: Quiz,
           required: false,
+          attributes: {
+            exclude: ['createdAt', 'updatedAt']
+          },
           include: [
             {
               model: User,
-              required: false
+              required: false,
+              attributes: {
+                exclude: ['createdAt', 'updatedAt', 'hashPassword']
+              },
             }
           ]
         }
@@ -204,8 +225,14 @@ exports.updateById = (req, res) => {
           return
         }
 
+        if (req.body.userText && textAnswer.userText != req.body.userText) {
+          res.status(400).send({
+            message: 'It is resticted to update userText'
+          })
+          return
+        }
+
         textAnswer.update({
-          userText: req.body.userText ? req.body.userText : textAnswer.text,
           numberOfVoters: req.body.numberOfVoters ? req.body.numberOfVoters : textAnswer.numberOfVoters,
           indexInsideTheQuestion: req.body.indexInsideTheQuestion ? req.body.indexInsideTheQuestion : textAnswer.indexInsideTheQuestion
         })

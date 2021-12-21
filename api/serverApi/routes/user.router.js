@@ -5,6 +5,20 @@ module.exports = app => {
 
   const router = require('express').Router()
 
+  /**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Message:
+ *       type: object
+ *       properties:
+ *         message:
+ *           type: string
+ *           description: The description of an error
+ *       example:
+ *         message: "Not Found"
+ */
+
   router.get('/users',
     passport.authenticate('jwt', {
       session: false

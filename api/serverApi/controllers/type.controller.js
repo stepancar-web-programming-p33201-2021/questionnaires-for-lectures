@@ -23,7 +23,11 @@ exports.create = (req, res) => {
 exports.findById = (req, res) => {
   const id = req.params.id
 
-  Type.findByPk(id)
+  Type.findByPk(id, {
+    attributes: {
+      exclude: ['createdAt', 'updatedAt']
+    }
+  })
     .then(data => {
       if (data) {
         res.send(data)
