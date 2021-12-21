@@ -24,8 +24,8 @@ exports.create = (req, res) => {
 
     const quiz = {
       name: req.body.name,
-      userLogin: req.user.login ? req.user.login : null,
-      isActive: req.body.isActive ? req.body.isActive : false,
+      userLogin: req.user ? req.user.login : null,
+      isActive: req.body.isActive ? req.body.isActive : true,
       code: code
     }
 

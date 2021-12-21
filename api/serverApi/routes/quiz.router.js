@@ -14,7 +14,7 @@ module.exports = app => {
   router.get('/quizzes/code/:code', quizzes.findByCode)
 
   router.post('/quizzes',
-    passport.authenticate('jwt', {
+    passport.authenticate(['jwt', 'anonymous'], {
       session: false
     }),
     quizzes.create)

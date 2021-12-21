@@ -22,7 +22,7 @@ module.exports = (sequelize, Sequelize) => {
     },
     isActive: {
       type: Sequelize.BOOLEAN,
-      defaultValue: false
+      defaultValue: true
     }
   }, {
     hooks: {
