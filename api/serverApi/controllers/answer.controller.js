@@ -1,87 +1,84 @@
-const db = require("../models");
-const Answer = db.answers;
-const Quiz = db.quizzes;
-const User = db.users;
-const Question = db.questions;
-const Op = db.Sequelize.Op;
+const db = require('../models')
+const Answer = db.answers
+const Quiz = db.quizzes
+const User = db.users
+const Question = db.questions
+const Op = db.Sequelize.Op
 
 exports.create = (req, res) => {
-  
   if (!req.body.text) {
     res.status(400).send({
-      message: "text is required"
-    });
-    return;
+      message: 'text is required'
+    })
+    return
   }
 
   if (!req.body.indexInsideTheQuestion) {
     res.status(400).send({
-      message: "indexInsideTheQuestion is required"
-    });
-    return;
+      message: 'indexInsideTheQuestion is required'
+    })
+    return
   }
 
   if (!req.body.text) {
     res.status(400).send({
-      message: "questionId is required"
-    });
-    return;
+      message: 'questionId is required'
+    })
+    return
   }
 
-  let answer = {
+  const answer = {
     text: req.body.text,
     indexInsideTheQuestion: req.body.indexInsideTheQuestion,
     numberOfVoters: req.body.numberOfVoters ? req.body.numberOfVoters : 0,
     isRight: req.body.isRight ? req.body.isRight : false,
     questionId: req.body.questionId
-  };
+  }
 
-  Question.findOne({where: {id : req.body.questionId}}).then(question => {
+  Question.findOne({ where: { id: req.body.questionId } }).then(question => {
     if (!question) {
       res.status(404).send({
-        message: "Not Found Question for this QuestionId"
-      });
-      return;
+        message: 'Not Found Question for this QuestionId'
+      })
+      return
     }
 
-    Quiz.findOne({where: {id : question.quizId}}).then(quiz => {
+    Quiz.findOne({ where: { id: question.quizId } }).then(quiz => {
       if (quiz.userLogin != req.user.login) {
         res.status(403).send({
-          message: `Forbidden`
-        });
-        return;
+          message: 'Forbidden'
+        })
+        return
       }
 
       if (question.typeId != 1) {
         res.status(400).send({
-          message: `Cannot add answer to the question of this type`
-        });
-        return;
+          message: 'Cannot add answer to the question of this type'
+        })
+        return
       }
 
-  Answer.create(answer)
-    .then(data => {
-      res.send(data);
-      return;
+      Answer.create(answer)
+        .then(data => {
+          res.send(data)
+        })
+        .catch(err => {
+          res.status(500).send({
+            message:
+          err.message || 'Some error occurred while creating the Answer.'
+          })
+        })
     })
-    .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while creating the Answer."
-      });
-      return;
-    });
-  });
-});
+  })
 }
 
 exports.findById = (req, res) => {
-  const id = req.params.id;
+  const id = req.params.id
 
   Answer.findOne({
-    where: {id : id}, 
+    where: { id: id },
     include: [{
-      model: Question, 
+      model: Question,
       required: false,
       include: [
         {
@@ -104,139 +101,126 @@ exports.findById = (req, res) => {
       if (data) {
         if (data.question.quiz.userLogin != req.user.login) {
           res.status(403).send({
-            message: `Forbidden`
-          });
-          return;
+            message: 'Forbidden'
+          })
+          return
         }
 
-        res.send(data);
-        return;
+        res.send(data)
       } else {
         res.status(404).send({
-          message: "Not found"
-        });
-        return;
+          message: 'Not found'
+        })
       }
     })
     .catch(err => {
       res.status(500).send({
-        message: "Error retrieving Answer with id=" + id
-      });
-      return;
-    });  
+        message: 'Error retrieving Answer with id=' + id
+      })
+    })
 }
 
 exports.updateById = (req, res) => {
-  const id = req.params.id;
+  const id = req.params.id
 
   Answer.findByPk(id).then(answer => {
-
     if (!answer) {
       res.status(404).send({
-        message: `Not Found`
-      });
-      return;
+        message: 'Not Found'
+      })
+      return
     }
-  
+
     Question.findByPk(answer.questionId).then(question => {
       Quiz.findByPk(question.quizId).then(quiz => {
-    if (quiz.userLogin != req.user.login) {
-      res.status(403).send({
-        message: `Forbidden`
-      });
-      return;
-    }
+        if (quiz.userLogin != req.user.login) {
+          res.status(403).send({
+            message: 'Forbidden'
+          })
+          return
+        }
 
-  if (req.body.questionId && answer.questionId != req.body.questionId) {
-    res.status(400).send({
-      message: `It is resticted to update questionId`
-    });
-    return;
-  }
+        if (req.body.questionId && answer.questionId != req.body.questionId) {
+          res.status(400).send({
+            message: 'It is resticted to update questionId'
+          })
+          return
+        }
 
-  if (req.body.id && answer.id != req.body.id) {
-    res.status(400).send({
-      message: `It is resticted to update id`
-    });
-    return;
-  }
+        if (req.body.id && answer.id != req.body.id) {
+          res.status(400).send({
+            message: 'It is resticted to update id'
+          })
+          return
+        }
 
-  answer.update({
-    isRight: req.body.isRight ? req.body.isRight : answer.isRight,
-    text: req.body.text ? req.body.text : answer.text,
-    numberOfVoters: req.body.numberOfVoters ? req.body.numberOfVoters : answer.numberOfVoters,
-    indexInsideTheQuestion: req.body.indexInsideTheQuestion ? req.body.indexInsideTheQuestion : answer.indexInsideTheQuestion
-  })
-    .then(num => {
-      if (num) {
-        res.send({
-          message: "Answer was updated successfully."
-        });
-        return;
-      } else {
-        res.send({
-          message: `Cannot update Answer with id=${id}.`
-        });
-        return;
-      }
+        answer.update({
+          isRight: req.body.isRight ? req.body.isRight : answer.isRight,
+          text: req.body.text ? req.body.text : answer.text,
+          numberOfVoters: req.body.numberOfVoters ? req.body.numberOfVoters : answer.numberOfVoters,
+          indexInsideTheQuestion: req.body.indexInsideTheQuestion ? req.body.indexInsideTheQuestion : answer.indexInsideTheQuestion
+        })
+          .then(num => {
+            if (num) {
+              res.send({
+                message: 'Answer was updated successfully.'
+              })
+            } else {
+              res.send({
+                message: `Cannot update Answer with id=${id}.`
+              })
+            }
+          })
+          .catch(err => {
+            res.status(500).send({
+              message: 'Error updating Answer with id=' + id
+            })
+          })
+      })
     })
-    .catch(err => {
-      res.status(500).send({
-        message: "Error updating Answer with id=" + id
-      });
-      return;
-    });
-  });
-  });
-  });
+  })
 }
 
 exports.deleteById = (req, res) => {
-  const id = req.params.id;
+  const id = req.params.id
 
   Answer.findByPk(id).then(answer => {
-
     if (!answer) {
       res.status(404).send({
-        message: `Not Found`
-      });
-      return;
+        message: 'Not Found'
+      })
+      return
     }
-  
+
     Question.findByPk(answer.questionId).then(question => {
       Quiz.findByPk(question.quizId).then(quiz => {
-      
-    if (quiz.userLogin != req.user.login) {
-      res.status(403).send({
-        message: `Forbidden`
-      });
-      return;
-    }
+        if (quiz.userLogin != req.user.login) {
+          res.status(403).send({
+            message: 'Forbidden'
+          })
+          return
+        }
 
-
-  Answer.destroy({
-    where: { id: id }
-  })
-    .then(num => {
-      if (num) {
-        res.send({
-          message: "Answer was deleted successfully!"
-        });
-        return;
-      } else {
-        res.send({
-          message: `Cannot delete Answer with id=${id}. Maybe Answer was not found!`
-        });
-        return;
-      }
+        Answer.destroy({
+          where: { id: id }
+        })
+          .then(num => {
+            if (num) {
+              res.send({
+                message: 'Answer was deleted successfully!'
+              })
+            } else {
+              res.send({
+                message: `Cannot delete Answer with id=${id}. Maybe Answer was not found!`
+              })
+            }
+          })
+          .catch(err => {
+            res.status(500).send({
+              message: 'Could not delete Answer with id=' + id
+            })
+          })
+      })
     })
-    .catch(err => {
-      res.status(500).send({
-        message: "Could not delete Answer with id=" + id
-      });
-      return;
-    });
-  });
-});
-  });
+  })
 }

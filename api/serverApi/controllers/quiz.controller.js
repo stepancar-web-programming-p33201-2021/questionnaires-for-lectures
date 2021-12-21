@@ -1,202 +1,197 @@
-const db = require("../models");  
-const codeGenerator = require("../codeGenerator");
-const Quiz = db.quizzes;
-const Question = db.questions;
-const Image = db.images;
-const Type = db.types;
-const TextAnswer = db.textAnswers;
-const Answer = db.answers;
-const User = db.users;
-const Op = db.Sequelize.Op;
-const N = 6;
+const db = require('../models')
+const codeGenerator = require('../codeGenerator')
+const Quiz = db.quizzes
+const Question = db.questions
+const Image = db.images
+const Type = db.types
+const TextAnswer = db.textAnswers
+const Answer = db.answers
+const User = db.users
+const Op = db.Sequelize.Op
+const N = 6
 
 exports.create = (req, res) => {
   if (!req.body.name) {
     res.status(400).send({
-      message: "name is required"
-    });
-    return;
+      message: 'name is required'
+    })
+    return
   }
 
-  let code;
+  let code
   codeGenerator(N).then(result => {
-  code = result;
-  
-  let quiz = {
-    name: req.body.name,
-    userLogin: req.user.login ? req.user.login : null,
-    isActive: req.body.isActive ? req.body.isActive : false,
-    code: code
-  };
+    code = result
 
-  if (req.body.images) {
-    quiz.images = req.body.images;
-  } 
+    const quiz = {
+      name: req.body.name,
+      userLogin: req.user.login ? req.user.login : null,
+      isActive: req.body.isActive ? req.body.isActive : false,
+      code: code
+    }
 
-  if (req.body.questions) {
-    quiz.questions = req.body.questions;
-  } 
+    if (req.body.images) {
+      quiz.images = req.body.images
+    }
 
-  var questions = [];
+    if (req.body.questions) {
+      quiz.questions = req.body.questions
+    }
 
-  if (quiz.questions) {
-    quiz.questions.forEach(e => {
+    const questions = []
 
-      const type = e.type.toLowerCase();
+    if (quiz.questions) {
+      quiz.questions.forEach(e => {
+        const type = e.type.toLowerCase()
 
-      if (type != "answer" && type != "textanswer") {
-        res.status(404).send({
-          message: `Cannot find Type.`
-        });
-        return;
-      }
-
-      let question = {
-        text: e.text,
-        indexInsideTheQuiz: e.indexInsideTheQuiz,
-        typeId: type == "answer" ? 1 : 2,
-        totalVoters: e.totalVoters ? e.totalVoters : 0,
-        quizId: e.quizId,
-      }
-
-      if (e.answers && type == "answer") {
-        question.answers = e.answers;
-      } else if (e.answers) {
-        res.status(400).send({
-          message: `Answers are not allowed in this Type`
-        });
-        return;
-      }
-    
-      if (e.textAnswers && type == "textanswer") {
-        question.textAnswers = e.textAnswers;
-      } else if (e.textAnswers) {
-        res.status(400).send({
-          message: `TextAnswers are not allowed in this Type`
-        });
-        return;
-      }
-
-      var answers = [];
-
-      if (question.answers) {
-
-        for (var i = 0; i < question.answers.length; i++) {
-          var e2 = question.answers[i];
-    
-          answers.push({
-            text: e2.text,
-            indexInsideTheQuestion: i,
-            numberOfVoters: e2.numberOfVoters ? e2.numberOfVoters : 0,
-            isRight: e2.isRight ? e2.isRight : false,
-            questionId: e2.questionId
+        if (type != 'answer' && type != 'textanswer') {
+          res.status(404).send({
+            message: 'Cannot find Type.'
           })
+          return
         }
 
-        question.answers = answers;
-      }
+        const question = {
+          text: e.text,
+          indexInsideTheQuiz: e.indexInsideTheQuiz,
+          typeId: type == 'answer' ? 1 : 2,
+          totalVoters: e.totalVoters ? e.totalVoters : 0,
+          quizId: e.quizId
+        }
 
-      var textAnswers = [];
+        if (e.answers && type == 'answer') {
+          question.answers = e.answers
+        } else if (e.answers) {
+          res.status(400).send({
+            message: 'Answers are not allowed in this Type'
+          })
+          return
+        }
 
-      if (question.textAnswers) {
-        question.textAnswers.forEach(e2 => textAnswers.push({
-          userText: e2.userText,
-          numberOfVoters: e2.numberOfVoters ? e2.numberOfVoters : 0,
-          questionId: e2.questionId
-        }));
+        if (e.textAnswers && type == 'textanswer') {
+          question.textAnswers = e.textAnswers
+        } else if (e.textAnswers) {
+          res.status(400).send({
+            message: 'TextAnswers are not allowed in this Type'
+          })
+          return
+        }
 
-        question.textAnswers = textAnswers;
-      }
+        const answers = []
 
-      questions.push(question);
-    });
+        if (question.answers) {
+          for (let i = 0; i < question.answers.length; i++) {
+            const e2 = question.answers[i]
 
-    quiz.questions = questions;
-  }
-
-  var images;
-
-  if (quiz.images) {
-    quiz.images.forEach(e => images.push({
-      quizId: e.quizId,
-      url: e.url,
-      indexInsideTheQuiz: e.indexInsideTheQuiz
-    }));
-
-    quiz.images = images;
-  }
-
-
-  Quiz.create(quiz, {
-    include: [
-      {
-        model: Question, 
-        required: false,
-        include: [
-          {
-            model: Type, 
-            required: false
-          },
-          {
-            model: Answer, 
-            required: false
-          },
-          {
-            model: TextAnswer, 
-            required: false
+            answers.push({
+              text: e2.text,
+              indexInsideTheQuestion: i,
+              numberOfVoters: e2.numberOfVoters ? e2.numberOfVoters : 0,
+              isRight: e2.isRight ? e2.isRight : false,
+              questionId: e2.questionId
+            })
           }
-        ]
-      }, 
-      {
-        model: Image, 
-        required: false
-      }
-    ]
-  })
-    .then(data => {
-      res.send(data);
-      return;
+
+          question.answers = answers
+        }
+
+        const textAnswers = []
+
+        if (question.textAnswers) {
+          question.textAnswers.forEach(e2 => textAnswers.push({
+            userText: e2.userText,
+            numberOfVoters: e2.numberOfVoters ? e2.numberOfVoters : 0,
+            questionId: e2.questionId
+          }))
+
+          question.textAnswers = textAnswers
+        }
+
+        questions.push(question)
+      })
+
+      quiz.questions = questions
+    }
+
+    let images
+
+    if (quiz.images) {
+      quiz.images.forEach(e => images.push({
+        quizId: e.quizId,
+        url: e.url,
+        indexInsideTheQuiz: e.indexInsideTheQuiz
+      }))
+
+      quiz.images = images
+    }
+
+    Quiz.create(quiz, {
+      include: [
+        {
+          model: Question,
+          required: false,
+          include: [
+            {
+              model: Type,
+              required: false
+            },
+            {
+              model: Answer,
+              required: false
+            },
+            {
+              model: TextAnswer,
+              required: false
+            }
+          ]
+        },
+        {
+          model: Image,
+          required: false
+        }
+      ]
     })
-    .catch(err => {
-      res.status(500).send({
-        message:
-          err.message || "Some error occurred while creating the Quiz."
-      });
-      return;
-    });
-  });
+      .then(data => {
+        res.send(data)
+      })
+      .catch(err => {
+        res.status(500).send({
+          message:
+          err.message || 'Some error occurred while creating the Quiz.'
+        })
+      })
+  })
 }
 
 exports.findById = (req, res) => {
-  const id = req.params.id;
+  const id = req.params.id
 
   Quiz.findOne({
-    where: {id : id}, 
+    where: { id: id },
     include: [
       {
-        model: Question, 
+        model: Question,
         required: false,
         include: [
           {
-            model: Type, 
+            model: Type,
             required: false
           },
           {
-            model: Answer, 
+            model: Answer,
             required: false
           },
           {
-            model: TextAnswer, 
+            model: TextAnswer,
             required: false
           }
         ]
-      }, 
+      },
       {
-        model: Image, 
+        model: Image,
         required: false
       },
       {
-        model: User, 
+        model: User,
         required: false,
         attributes: {
           exclude: ['hashPassword']
@@ -207,70 +202,66 @@ exports.findById = (req, res) => {
     .then(data => {
       if (data) {
         if (data.userLogin == req.user.login) {
-          res.send(data);
-          return;
+          res.send(data)
         } else {
           res.status(403).send({
-            message: `Forbidden.`
-          });
-          return;
+            message: 'Forbidden.'
+          })
         }
       } else {
         res.status(404).send({
           message: `Cannot find Quiz with id = ${id}.`
-        });
-        return;
+        })
       }
     })
     .catch(err => {
       res.status(500).send({
-        message: "Error retrieving Quiz with id = " + id
-      });
-      return;
-    });  
+        message: 'Error retrieving Quiz with id = ' + id
+      })
+    })
 }
 
 exports.findByCode = (req, res) => {
-  const code = req.params.code;
+  const code = req.params.code
 
   Quiz.findOne({
-    where: {code : code}, 
+    where: { code: code },
     attributes: {
       exclude: ['id']
     },
     include: [
       {
-        model: Question, 
+        model: Question,
         required: false,
         attributes: {
           exclude: ['id', 'quizId', 'typeId']
         },
         include: [
           {
-            model: Type, 
+            model: Type,
             required: false,
             attributes: {
               exclude: ['id']
             }
           },
           {
-            model: Answer, 
+            model: Answer,
             required: false,
             attributes: {
               exclude: ['id', 'questionId']
             }
           },
           {
-            model: TextAnswer, 
+            model: TextAnswer,
             required: false,
             attributes: {
               exclude: ['id', 'questionId']
             }
           }
         ]
-      }, 
+      },
       {
-        model: Image, 
+        model: Image,
         required: false,
         attributes: {
           exclude: ['id', 'quizId']
@@ -281,236 +272,217 @@ exports.findByCode = (req, res) => {
     .then(data => {
       if (data) {
         if (data.isActive) {
-          res.send(data);
-          return;
+          res.send(data)
         } else {
           res.status(403).send({
             message: `Quiz with code ${code} is not active.`
-          });
-          return;
+          })
         }
       } else {
         res.status(404).send({
           message: `Cannot find Quiz with code = ${code}.`
-        });
-        return;
+        })
       }
     })
     .catch(err => {
       res.status(500).send({
-        message: "Error retrieving Quiz with code = " + code
-      });
-      return;
-    });  
+        message: 'Error retrieving Quiz with code = ' + code
+      })
+    })
 }
 
 exports.updateById = (req, res) => {
-  const id = req.params.id;
+  const id = req.params.id
 
-  Quiz.findOne({where: {id: id}}).then(quiz => {
+  Quiz.findOne({ where: { id: id } }).then(quiz => {
+    if (!quiz) {
+      res.status(404).send({
+        message: 'Not Found'
+      })
+      return
+    }
 
-  if (!quiz) {
-    res.status(404).send({
-      message: `Not Found`
-    });
-    return;
-  }
+    if (quiz.userLogin != req.user.login) {
+      res.status(403).send({
+        message: 'Forbidden'
+      })
+      return
+    }
 
-  if (quiz.userLogin != req.user.login) {
-    res.status(403).send({
-      message: `Forbidden`
-    });
-    return;
-  }
+    if (req.body.userLogin && quiz.userLogin != req.body.userLogin) {
+      res.status(400).send({
+        message: 'It is resticted to update userLogin'
+      })
+      return
+    }
 
-  if (req.body.userLogin && quiz.userLogin != req.body.userLogin) {
-    res.status(400).send({
-      message: `It is resticted to update userLogin`
-    });
-    return;
-  }
+    if (req.body.id && quiz.id != req.body.id) {
+      res.status(400).send({
+        message: 'It is resticted to update id'
+      })
+      return
+    }
 
-  if (req.body.id && quiz.id != req.body.id) {
-    res.status(400).send({
-      message: `It is resticted to update id`
-    });
-    return;
-  }
+    if (req.body.code && quiz.code != req.body.code) {
+      res.status(400).send({
+        message: 'It is resticted to update code'
+      })
+      return
+    }
 
-  if (req.body.code && quiz.code != req.body.code) {
-    res.status(400).send({
-      message: `It is resticted to update code`
-    });
-    return;
-  }
+    if (req.body.images) {
+      res.status(400).send({
+        message: 'It is resticted to update images'
+      })
+      return
+    }
 
-  if (req.body.images) {
-    res.status(400).send({
-      message: `It is resticted to update images`
-    });
-    return;
-  }
+    if (req.body.questions) {
+      res.status(400).send({
+        message: 'It is resticted to update questions'
+      })
+      return
+    }
 
-  if (req.body.questions) {
-    res.status(400).send({
-      message: `It is resticted to update questions`
-    });
-    return;
-  }
-
-  quiz.update({
-    name: req.body.name ? req.body.name : quiz.name,
-    isActive: req.body.isActive ? req.body.isActive : quiz.isActive
-  })
-    .then(num => {
-      if (num) {
-        res.send({
-          message: "Quiz was updated successfully."
-        });
-        return;
-      } else {
-        res.send({
-          message: `Cannot update Quiz with id = ${id}.`
-        });
-        return;
-      }
+    quiz.update({
+      name: req.body.name ? req.body.name : quiz.name,
+      isActive: req.body.isActive ? req.body.isActive : quiz.isActive
     })
-    .catch(err => {
-      res.status(500).send({
-        message: "Error updating Quiz with id=" + id
-      });
-      return;
-    });
+      .then(num => {
+        if (num) {
+          res.send({
+            message: 'Quiz was updated successfully.'
+          })
+        } else {
+          res.send({
+            message: `Cannot update Quiz with id = ${id}.`
+          })
+        }
+      })
+      .catch(err => {
+        res.status(500).send({
+          message: 'Error updating Quiz with id=' + id
+        })
+      })
   })
 }
 
 exports.activateById = (req, res) => {
-  const id = req.params.id;
-  Quiz.findOne({where: {id : id}}).then(quiz => {
+  const id = req.params.id
+  Quiz.findOne({ where: { id: id } }).then(quiz => {
     if (!quiz) {
       res.status(404).send({
-        message: `Not Found`
-      });
-      return;
+        message: 'Not Found'
+      })
+      return
     }
 
-  if (quiz.userLogin != req.user.login) {
-    res.status(403).send({
-      message: `Forbidden`
-    });
-    return;
-  }
+    if (quiz.userLogin != req.user.login) {
+      res.status(403).send({
+        message: 'Forbidden'
+      })
+      return
+    }
 
-  quiz.update({
-    isActive: true
-  })
-    .then(num => {
-      if (num) {
-        res.send({
-          message: "Quiz was activated successfully."
-        });
-        return;
-      } else {
-        res.send({
-          message: `Cannot activate Quiz with id = ${id}. Maybe Quiz was not found`
-        });
-        return;
-      }
+    quiz.update({
+      isActive: true
     })
-    .catch(err => {
-      res.status(500).send({
-        message: "Error updating Quiz with id=" + id
-      });
-      return;
-    });
-  });
-
+      .then(num => {
+        if (num) {
+          res.send({
+            message: 'Quiz was activated successfully.'
+          })
+        } else {
+          res.send({
+            message: `Cannot activate Quiz with id = ${id}. Maybe Quiz was not found`
+          })
+        }
+      })
+      .catch(err => {
+        res.status(500).send({
+          message: 'Error updating Quiz with id=' + id
+        })
+      })
+  })
 }
 
 exports.deactivateById = (req, res) => {
-  const id = req.params.id;
-  Quiz.findOne({where: {id : id}}).then(quiz => {
+  const id = req.params.id
+  Quiz.findOne({ where: { id: id } }).then(quiz => {
     if (!quiz) {
       res.status(404).send({
-        message: `Not Found`
-      });
-      return;
+        message: 'Not Found'
+      })
+      return
     }
-    
-  if (quiz.userLogin != req.user.login) {
-    res.status(403).send({
-      message: `Forbidden`
-    });
-    return;
-  }
 
-  quiz.update({
-    isActive: false
-  })
-    .then(num => {
-      if (num) {
-        res.send({
-          message: "Quiz was deactivated successfully."
-        });
-        return;
-      } else {
-        res.send({
-          message: `Cannot deactivate Quiz with id = ${id}. Maybe Quiz was not found`
-        });
-        return;
-      }
+    if (quiz.userLogin != req.user.login) {
+      res.status(403).send({
+        message: 'Forbidden'
+      })
+      return
+    }
+
+    quiz.update({
+      isActive: false
     })
-    .catch(err => {
-      res.status(500).send({
-        message: "Error updating Quiz with id=" + id
-      });
-      return;
-    });
-  });
+      .then(num => {
+        if (num) {
+          res.send({
+            message: 'Quiz was deactivated successfully.'
+          })
+        } else {
+          res.send({
+            message: `Cannot deactivate Quiz with id = ${id}. Maybe Quiz was not found`
+          })
+        }
+      })
+      .catch(err => {
+        res.status(500).send({
+          message: 'Error updating Quiz with id=' + id
+        })
+      })
+  })
 }
 
 exports.deleteById = (req, res) => {
-  const id = req.params.id;
+  const id = req.params.id
 
   Quiz.findOne({
     where: { id: id }
   }).then(quiz => {
+    if (!quiz) {
+      res.status(404).send({
+        message: 'Not Found'
+      })
+      return
+    }
 
-  if (!quiz) {
-    res.status(404).send({
-      message: `Not Found`
-    });
-    return;
-  }
+    if (quiz.userLogin != req.user.login) {
+      res.status(403).send({
+        message: 'Forbidden'
+      })
+      return
+    }
 
-  if (quiz.userLogin != req.user.login) {
-    res.status(403).send({
-      message: `Forbidden`
-    });
-    return;
-  }
-
-  Quiz.destroy({
-    where: { id: id }
-  })
-    .then(num => {
-      if (num) {
-        res.send({
-          message: "Quiz was deleted successfully!"
-        });
-        return;
-      } else {
-        res.send({
-          message: `Cannot delete Quiz with id=${id}. Maybe Quiz was not found!`
-        });
-        return;
-      }
+    Quiz.destroy({
+      where: { id: id }
     })
-    .catch(err => {
-      res.status(500).send({
-        message: "Could not delete Quiz with id=" + id
-      });
-      return;
-    });
-  });
+      .then(num => {
+        if (num) {
+          res.send({
+            message: 'Quiz was deleted successfully!'
+          })
+        } else {
+          res.send({
+            message: `Cannot delete Quiz with id=${id}. Maybe Quiz was not found!`
+          })
+        }
+      })
+      .catch(err => {
+        res.status(500).send({
+          message: 'Could not delete Quiz with id=' + id
+        })
+      })
+  })
 }
