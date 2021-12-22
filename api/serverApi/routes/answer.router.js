@@ -35,7 +35,7 @@ module.exports = app => {
  *         numberOfVoters:
  *           type: integer
  *           description: number of people who voted for this answer
- *           default: 0 
+ *           default: 0
  *       example:
  *         id: 1
  *         text: JavaScript
@@ -44,14 +44,14 @@ module.exports = app => {
  *         numberOfVoters: 0
  */
 
- /**
+  /**
   * @swagger
   * tags:
   *   name: Answers
   *   description: The answer managing API
   */
 
- /**
+  /**
  * @swagger
  * /answers/{id}:
  *   get:
@@ -73,28 +73,28 @@ module.exports = app => {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Answer'
- *       
+ *
  *       403:
- *         description: This answer is placed in the quiz that doesn't belong to the authorized user 
+ *         description: This answer is placed in the quiz that doesn't belong to the authorized user
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Message'
- * 
+ *
  *       404:
  *         description: The answer was not found
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Message'
- * 
+ *
  *       500:
  *         description: Internal server error
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Message'
- *       
+ *
  */
 
   router.get('/answers/:id',
@@ -103,7 +103,7 @@ module.exports = app => {
     }),
     answers.findById)
 
-    /**
+  /**
  * @swagger
  * /books:
  *   post:
@@ -122,21 +122,21 @@ module.exports = app => {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Answer'
- *       
+ *
  *       403:
- *         description: This answer has to be placed in the quiz that doesn't belong to the authorized user 
+ *         description: This answer has to be placed in the quiz that doesn't belong to the authorized user
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Message'
- * 
+ *
  *       404:
  *         description: The question for sent questionId was not found
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Message'
- * 
+ *
  *       500:
  *         description: Internal server error
  *         content:

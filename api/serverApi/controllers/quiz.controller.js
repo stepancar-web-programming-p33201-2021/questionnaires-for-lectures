@@ -41,6 +41,27 @@ exports.create = (req, res) => {
 
     if (quiz.questions) {
       quiz.questions.forEach(e => {
+        if (!e.text) {
+          res.status(400).send({
+            message: 'text for question is required'
+          })
+          return
+        }
+
+        if (!e.indexInsideTheQuiz) {
+          res.status(400).send({
+            message: 'indexInsideTheQuiz for question is required'
+          })
+          return
+        }
+
+        if (!e.type) {
+          res.status(400).send({
+            message: 'type for question is required'
+          })
+          return
+        }
+
         const type = e.type.toLowerCase()
 
         if (type != 'answer' && type != 'textanswer') {
@@ -82,6 +103,13 @@ exports.create = (req, res) => {
           for (let i = 0; i < question.answers.length; i++) {
             const e2 = question.answers[i]
 
+            if (!e2.text) {
+              res.status(400).send({
+                message: 'text for answer is required'
+              })
+              return
+            }
+
             answers.push({
               text: e2.text,
               indexInsideTheQuestion: i,
@@ -97,11 +125,20 @@ exports.create = (req, res) => {
         const textAnswers = []
 
         if (question.textAnswers) {
-          question.textAnswers.forEach(e2 => textAnswers.push({
-            userText: e2.userText,
-            numberOfVoters: e2.numberOfVoters ? e2.numberOfVoters : 0,
-            questionId: e2.questionId
-          }))
+          question.textAnswers.forEach(e2 => {
+            if (!e2.userText) {
+              res.status(400).send({
+                message: 'userText is required for textAnswer'
+              })
+              return
+            }
+
+            textAnswers.push({
+              userText: e2.userText,
+              numberOfVoters: e2.numberOfVoters ? e2.numberOfVoters : 0,
+              questionId: e2.questionId
+            })
+          })
 
           question.textAnswers = textAnswers
         }

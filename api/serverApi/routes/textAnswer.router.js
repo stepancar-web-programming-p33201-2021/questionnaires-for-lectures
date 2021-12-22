@@ -15,7 +15,7 @@ module.exports = app => {
     passport.authenticate('jwt', {
       session: false
     }),
-    textAnswers.findByUserText)  
+    textAnswers.findByUserText)
 
   router.post('/textAnswers',
     passport.authenticate('jwt', {

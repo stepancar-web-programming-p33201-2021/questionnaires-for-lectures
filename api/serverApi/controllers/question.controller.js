@@ -93,6 +93,13 @@ exports.create = (req, res) => {
         for (let i = 0; i < question.answers.length; i++) {
           const e = question.answers[i]
 
+          if (!e.text) {
+            res.status(400).send({
+              message: 'text for answer is required'
+            })
+            return
+          }
+
           answers.push({
             text: e.text,
             indexInsideTheQuestion: i,
@@ -108,11 +115,20 @@ exports.create = (req, res) => {
       const textAnswers = []
 
       if (question.textAnswers) {
-        question.textAnswers.forEach(e => textAnswers.push({
-          userText: e.userText,
-          numberOfVoters: e.numberOfVoters ? e.numberOfVoters : 0,
-          questionId: e.questionId
-        }))
+        question.textAnswers.forEach(e => {
+          if (!e.userText) {
+            res.status(400).send({
+              message: 'userText is required for textAnswer'
+            })
+            return
+          }
+
+          textAnswers.push({
+            userText: e.userText,
+            numberOfVoters: e.numberOfVoters ? e.numberOfVoters : 0,
+            questionId: e.questionId
+          })
+        })
 
         question.textAnswers = textAnswers
       }
@@ -275,7 +291,6 @@ exports.updateById = (req, res) => {
 
       question.update({
         text: req.body.text ? req.body.text : question.text,
-        type: req.body.type ? req.body.type : question.type,
         indexInsideTheQuiz: req.body.indexInsideTheQuiz ? req.body.indexInsideTheQuiz : question.indexInsideTheQuiz,
         totalVoters: req.body.totalVoters ? req.body.totalVoters : question.totalVoters
       })

@@ -161,7 +161,7 @@ exports.findByUserText = (req, res) => {
               required: false,
               attributes: {
                 exclude: ['createdAt', 'updatedAt', 'hashPassword']
-              },
+              }
             }
           ]
         }
@@ -233,8 +233,7 @@ exports.updateById = (req, res) => {
         }
 
         textAnswer.update({
-          numberOfVoters: req.body.numberOfVoters ? req.body.numberOfVoters : textAnswer.numberOfVoters,
-          indexInsideTheQuestion: req.body.indexInsideTheQuestion ? req.body.indexInsideTheQuestion : textAnswer.indexInsideTheQuestion
+          numberOfVoters: req.body.numberOfVoters ? req.body.numberOfVoters : textAnswer.numberOfVoters
         })
           .then(num => {
             if (num) {

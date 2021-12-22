@@ -1,6 +1,6 @@
 const jwt = require('passport-jwt')
 const db = require('../models')
-const AnonymousStrategy = require('passport-anonymous');
+const AnonymousStrategy = require('passport-anonymous')
 
 const Users = db.users
 
@@ -22,6 +22,6 @@ module.exports = passport => {
         })
         .catch(err => console.log(err))
     })
-  );
-  passport.use(new AnonymousStrategy.Strategy());
+  )
+  passport.use(new AnonymousStrategy.Strategy())
 }

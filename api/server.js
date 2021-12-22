@@ -2,52 +2,51 @@ const express = require('express')
 const cors = require('cors')
 const passport = require('passport')
 const bodyParser = require('body-parser')
-const swaggerUI = require("swagger-ui-express");
-const swaggerJsDoc = require("swagger-jsdoc");
+const swaggerUI = require('swagger-ui-express')
+const swaggerJsDoc = require('swagger-jsdoc')
 
 const corsOptions = {
   origin: 'http://localhost:8081'
 }
 
 const options = {
-	definition: {
-		openapi: "3.0.0",
-		info: {
-			title: "WebQuizzes API",
-			version: "1.0.0",
-			description: "WebQuizzes API",
-		},
-		servers: [
-			{
-				url: "http://localhost:8080/api",
-			},
-		]
-	},
-	
-	components: {
-		securitySchemes: {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'WebQuizzes API',
+      version: '1.0.0',
+      description: 'WebQuizzes API'
+    },
+    servers: [
+      {
+        url: 'http://localhost:8080/api'
+      }
+    ]
+  },
+
+  components: {
+    securitySchemes: {
 		  jwt: {
-			type: "http",
-			scheme: "bearer",
-			in: "header",
-			bearerFormat: "JWT"
-		  },
-		}
-	  }
-	  ,
+        type: 'http',
+        scheme: 'bearer',
+        in: 'header',
+        bearerFormat: 'JWT'
+		  }
+    }
+	  },
 	  security: [{
-		jwt: []
+    jwt: []
 	  }],
 
-	swagger: "2.0",
+  swagger: '2.0',
 
-	apis: ["./ServerApi/routes/*.js"],
-};
+  apis: ['./ServerApi/routes/*.js']
+}
 
-const specs = swaggerJsDoc(options);
+const specs = swaggerJsDoc(options)
 
 const app = express()
-app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(specs));
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(specs))
 app.use(cors(corsOptions))
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
