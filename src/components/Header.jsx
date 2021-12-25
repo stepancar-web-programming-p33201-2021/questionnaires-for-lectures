@@ -1,6 +1,6 @@
-import { Toolbar, Typography, AppBar, Button, Avatar } from '@mui/material';
+import { Toolbar, AppBar, Button } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import quizLogo from '../icons/quiz_logo.svg';
+import { useNavigate } from 'react-router-dom';
 
 const HeaderBar = styled(Toolbar)({
   backgroundColor: 'white',
@@ -11,16 +11,35 @@ const HeaderButton = styled(Button)({
   fontSize: '13px',
 });
 
-function Header() {
+function Header({ loggedIn, setLoggedIn }) {
+  const navigate = useNavigate();
+  
+
+  function handleLogOut() {
+    localStorage.removeItem('jwt');
+    setLoggedIn(false);
+    navigate('/sign-in');
+  }
   return (
     <>
-      <AppBar position='static' sx={{ mb: '20px' }}>
-        <HeaderBar>
-          <HeaderButton variant='contained'>Новый квиз</HeaderButton>
-          <HeaderButton variant='contained'>Выйти</HeaderButton>
-          <Avatar alt='avatar' src='' sx={{ cursor: 'pointer' }} />
-        </HeaderBar>
-      </AppBar>
+      {loggedIn ? (
+        <AppBar position='static' sx={{ mb: '20px' }}>
+          <HeaderBar>
+            <HeaderButton variant='contained' onClick={() => navigate('/')}>
+              На главную
+            </HeaderButton>
+            <HeaderButton
+              variant='contained'
+              onClick={() => navigate('/quiz-form')}
+            >
+              Новый квиз
+            </HeaderButton>
+            <HeaderButton onClick={handleLogOut} variant='contained'>Выйти</HeaderButton>
+          </HeaderBar>
+        </AppBar>
+      ) : (
+        null
+      )}
     </>
   );
 }

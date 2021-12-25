@@ -1,11 +1,10 @@
 import React from 'react';
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
 import { Box, Button, Container, Typography } from '@mui/material';
 import { AuthInput } from './AuthInput';
 import { SIGN_UP_TITLE } from '../utils/constants';
 
-
-function Auth({ onSubmit, title }) {
+function Auth({ onSubmit, title, onChange, textButton }) {
   return (
     <Container
       maxWidth='sm'
@@ -25,7 +24,7 @@ function Auth({ onSubmit, title }) {
           width: '80%',
         }}
       >
-        <Box component='form' onSubmit={onSubmit} noValidate>
+        <Box component='form' onSubmit={onSubmit}>
           <Typography
             component='h2'
             sx={{
@@ -40,27 +39,54 @@ function Auth({ onSubmit, title }) {
             {' '}
             {title}{' '}
           </Typography>
-          <AuthInput label='Почта' type='email' />
-          <AuthInput label='Пароль' type='password' />
-          {title === SIGN_UP_TITLE ? (
-            <AuthInput label='Повторите Пароль' type='password' />
-          ) : null}
+          <AuthInput
+            name='email'
+            label='Почта'
+            type='email'
+            onChange={onChange}
+          />
+          <AuthInput
+            name='password'
+            label='Пароль'
+            type='password'
+            onChange={onChange}
+          />
           <Button
             variant='contained'
-            sx={{ width: '100%', padding: '10px', marginTop: '30px', letterSpacing: 1, fontWeight: 'bold' }}
+            sx={{
+              width: '100%',
+              padding: '10px',
+              marginTop: '30px',
+              letterSpacing: 1,
+              fontWeight: 'bold',
+            }}
+            type='submit'
           >
-            Зарегистрироваться
+            {textButton}
           </Button>
           {title === SIGN_UP_TITLE ? (
-            <Typography component='p' sx={{marginTop: '20px', textAlign: 'center'}}>
-              Вы уже зарегистрировались? {' '}
-              <Link className='link' to='/sign-in'>Войти</Link>
+            <Typography
+              component='p'
+              sx={{ marginTop: '20px', textAlign: 'center' }}
+            >
+              Вы уже зарегистрировались?{' '}
+              <Link className='link' to='/sign-in'>
+                Войти
+              </Link>
             </Typography>
-          ) : null}
+          ) : (
+            <Typography
+              component='p'
+              sx={{ marginTop: '20px', textAlign: 'center' }}
+            >
+              <Link className='link' to='/sign-up'>
+                Зарегистрироваться{' '}
+              </Link>
+            </Typography>
+          )}
         </Box>
       </Container>
     </Container>
-   
   );
 }
 
