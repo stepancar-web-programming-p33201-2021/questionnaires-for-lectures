@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const dotenv = require('dotenv');
 const jwt = require('jsonwebtoken');
-const User = require('../models/users');
+const User = require('../models/user.model');
 const AuthError = require('../errors/AuthError');
 const NotFoundError = require('../errors/NotFoundError');
 const ValidationError = require('../errors/ValidationError');
@@ -11,8 +11,7 @@ dotenv.config();
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
-
-const createUser = (req, res, next) => {
+exports.create = (req, res, next) => {
   const { email, password } = req.body;
   if (!email || !password) {
     throw new AuthError('Пароль или почта некорректны');
@@ -39,7 +38,7 @@ const createUser = (req, res, next) => {
 };
 
 
-const login = (req, res, next) => {
+exports.login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
@@ -56,10 +55,4 @@ const login = (req, res, next) => {
       throw new AuthError(err.message);
     })
     .catch(next);
-};
-
-module.exports = {
-  createUser,
-  login,
-
 };

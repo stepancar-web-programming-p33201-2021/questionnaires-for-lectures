@@ -2,11 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const app = express();
 const dotenv = require('dotenv');
-const Quiz = require('./models/quiz');
 const cors = require('cors');
-const { createUser, login } = require('./controllers/users');
 const { PORT = 3005 } = process.env;
-
 
 dotenv.config();
 app.use(cors());
@@ -19,43 +16,10 @@ mongoose.connect('mongodb://localhost:27017/quizapp', {
   useUnifiedTopology: true,
 });
 
-app.post('/signup', createUser);
-app.post('/signin',  login);
 
-app.post('/quiz', async (req, res) => {
-  const { name, questions } = req.body;
-  try {
-    let newQuiz = new Quiz({
-      name,
-      questions,
-    });
-    const quiz = await newQuiz.save();
-    res.json(quiz);
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).send('Server Error');
-  }
-});
+require('./routers/user.router')(app)
+require('./routers/quiz.router')(app)
 
-app.get('/quiz/:id', async (req, res) => {
-  try {
-    let quiz = await Quiz.findById(req.params.id);
-    res.json(quiz);
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).send(error.message);
-  }
-});
-
-app.get('/allquizzes', async (req, res) => {
-  try {
-    let quizzes = await Quiz.find({});
-    res.json(quizzes);
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).send('Server Error');
-  }
-});
 
 app.listen(PORT, () => {
   console.log('QUIZ APP LISTEN');
