@@ -1,6 +1,6 @@
 import { SET_QUIZ, UPDATE_ANSWER, SHOW_ANSWERS } from '../actions/types';
 
-//Initial state for quiz
+
 const initialState = {
   name: '',
   questions: [],
@@ -25,7 +25,7 @@ export default (state = initialState, action) => {
         ...action.payload
       };
     case UPDATE_ANSWER:
-      //find correct question
+      
       let q = state.questions.filter(
         q => q.id === action.payload.question_id
       )[0];

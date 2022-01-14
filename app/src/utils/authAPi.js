@@ -1,10 +1,21 @@
-const BASE_URL = "http://91.122.105.100:3005";
+const BASE_URL = "http://localhost:3005";
 
 const response = (res) => {
     if (res.ok) {
         return res.json();
     }
     return Promise.reject(`Error ${res.status}`);
+};
+
+export const getUser = (token) => {
+    return fetch(`${BASE_URL}/me`, {
+        method: "GET",
+        headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+    }).then(response);
 };
 
 export const login = (email, password) => {
@@ -18,7 +29,7 @@ export const login = (email, password) => {
     }).then(response);
 };
 
-export const createProfile = ( email, password) => {
+export const createProfile = ( name, email, password) => {
     return fetch(`${BASE_URL}/signup`, {
         method: "POST",
         headers: {
@@ -26,6 +37,7 @@ export const createProfile = ( email, password) => {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
+            name,
             email,
             password,
         }),

@@ -1,9 +1,3 @@
 @import url(./vendor/normalize.css);
 @import url(./vendor/fonts/Raleway.css);
 @import url(./styles/styles.css);
-
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}

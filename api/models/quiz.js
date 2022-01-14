@@ -7,7 +7,11 @@ const QuizSchema = new mongoose.Schema({
   },
   questions: {
     type: Array
-  }
+  },
+  statistics: {
+    type: Array,
+    default: [],
+  },
 });
 
 module.exports = mongoose.model('quiz', QuizSchema);

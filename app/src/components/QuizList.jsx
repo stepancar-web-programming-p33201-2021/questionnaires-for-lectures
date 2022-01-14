@@ -10,7 +10,7 @@ import {
   Container,
 } from '@mui/material';
 import { Link } from 'react-router-dom';
-
+import Statistics from './Statistics';
 
 export class QuizList extends Component {
   componentDidMount() {
@@ -30,15 +30,14 @@ export class QuizList extends Component {
         <Container
           sx={{
             display: 'flex',
-            
             flexWrap: 'wrap',
           }}
         >
           {someQuizzes &&
             someQuizzes.length > 0 &&
-            someQuizzes.map((quiz) => {
+            someQuizzes.map((quiz, index) => {
               return (
-                <Card key={quiz._id} sx={{ width: 345, margin: '10px' }}>
+                <Card key={quiz._id} sx={{ width: 350, margin: '10px' }}>
                   <CardContent>
                     <Typography
                       gutterBottom
@@ -49,13 +48,29 @@ export class QuizList extends Component {
                       {quiz.name}
                     </Typography>
                   </CardContent>
-                  <CardActions>
-                    <Button size='small'>
-                      <Link style={{textDecoration: 'none'}} key={quiz._id} to={`/quiz/${quiz._id}`}>
+                  <CardActions
+                    sx={{ display: 'flex', justifyContent: 'space-between' }}
+                  >
+                    <Button fullWidth>
+                      <Link
+                        style={{ textDecoration: 'none' }}
+                        key={quiz._id}
+                        to={`/quiz/${quiz._id}`}
+                      >
                         Пройти
                       </Link>
                     </Button>
+                    <Button fullWidth>
+                      <Link
+                        style={{ textDecoration: 'none' }}
+                        key={quiz._id}
+                        to={`/qr/${quiz._id}`}
+                      >
+                        QR-code
+                      </Link>
+                    </Button>
                   </CardActions>
+                  <Statistics quiz={quiz}/>
                 </Card>
               );
             })}

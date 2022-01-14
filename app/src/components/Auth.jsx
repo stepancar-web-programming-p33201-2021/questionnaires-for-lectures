@@ -39,6 +39,14 @@ function Auth({ onSubmit, title, onChange, textButton }) {
             {' '}
             {title}{' '}
           </Typography>
+          {title === SIGN_UP_TITLE ? (
+            <AuthInput
+              name='name'
+              label='Имя'
+              type='text'
+              onChange={onChange}
+            />
+          ) : null}
           <AuthInput
             name='email'
             label='Почта'

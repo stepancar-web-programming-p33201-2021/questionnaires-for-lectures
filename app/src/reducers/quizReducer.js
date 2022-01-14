@@ -6,8 +6,7 @@ import {
     SET_QUIZZES,
   } from "../actions/types";
   var shuffle = require("knuth-shuffle").knuthShuffle;
-  
-  //Initial state for quiz
+
   const initialState = { name: "", questions: [] };
   
   export default (state = initialState, action) => {
@@ -28,7 +27,6 @@ import {
           ...state,
         };
       case ADD_QUESTION:
-        //check if question id is already in array
         let isInArray = state.questions.filter((q) => q.id === action.payload.id);
   
         if (isInArray.length === 0) {

@@ -6,13 +6,7 @@ import { useParams } from 'react-router-dom';
 
 const withRouter = (WrappedComponent) => (props) => {
   const params = useParams();
-  return (
-    <WrappedComponent
-      {...props}
-      params={params}
-
-    />
-  );
+  return <WrappedComponent {...props} params={params} />;
 };
 
 class Quiz extends React.Component {
@@ -34,20 +28,27 @@ class Quiz extends React.Component {
       });
     }, 3000);
   }
-
-  onSubmit() {
-    //проверка все ли вопросы отвечены
-    let unanswered = this.props.questions.filter((q) => !q.userAnswer);
-    if (unanswered.length === 0) {
-      // если неотвеченных нет
-      this.props.showAnswers();
-      //количество очков
-      this.setState({
-        score: this.calculateScore(this.props.questions),
-        submitted: true,
+  async changeStat(quizId, nameUser, score) {
+    const token = localStorage.getItem('jwt');
+    try {
+      const res = await fetch(`http://localhost:3005/${quizId}/statistics`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: nameUser,
+          score: score,
+        }),
       });
-    } else {
-      this.setErrorMessage('Ответьте на все вопросы');
+      if (res.ok) {
+        return res.json();
+      }
+      return await Promise.reject(`Ошибка: ${res.status}`);
+    } catch (err) {
+      console.log(err);
     }
   }
 
@@ -58,6 +59,27 @@ class Quiz extends React.Component {
       } else return acc;
     }, 0);
     return score;
+  }
+
+  onSubmit() {
+    //проверка все ли вопросы отвечены
+    let unanswered = this.props.questions.filter((q) => !q.userAnswer);
+    if (unanswered.length === 0) {
+      // если неотвеченных нет
+      this.props.showAnswers();
+      //количество очков
+      this.setState(
+        {
+          score: this.calculateScore(this.props.questions),
+          submitted: true,
+        },
+        () => {
+          this.changeStat(this.props.params.id, this.props.nameUser, this.state.score);
+        }
+      );
+    } else {
+      this.setErrorMessage('Ответьте на все вопросы');
+    }
   }
 
   render() {

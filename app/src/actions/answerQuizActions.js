@@ -1,7 +1,7 @@
 import { SET_QUIZ, UPDATE_ANSWER, SHOW_ANSWERS, SEND_ANSWERS } from "./types";
 
 export const setQuiz = (id) => async (dispatch) => {
-  let res = await fetch(`http://91.122.105.100:3005/quiz/${id}`);
+  let res = await fetch(`http://localhost:3005/quiz/${id}`);
   const data = await res.json();
   dispatch({
     type: SET_QUIZ,
