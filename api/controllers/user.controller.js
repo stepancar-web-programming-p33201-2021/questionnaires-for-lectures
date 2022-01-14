@@ -11,6 +11,21 @@ dotenv.config();
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
+exports.getMyUser = (req, res, next) => {
+  User.findById(req.user._id)
+    .orFail(() => {
+      throw new NotFoundError('Пользователя с таким id не существует');
+    })
+    .then((user) => res.send(user))
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new ValidationError('Id неверный'));
+      } else {
+        next(err);
+      }
+    });
+};
+
 exports.create = (req, res, next) => {
   const { email, password } = req.body;
   if (!email || !password) {

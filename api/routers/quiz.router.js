@@ -9,5 +9,7 @@ module.exports = app => {
       
     router.get('/allquizzes', quizzes.findAll);
 
+    router.get('/:quizId/statistics', quizzes.setStatistics);
+
     app.use('', router)
   }
